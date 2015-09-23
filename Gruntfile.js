@@ -21,7 +21,8 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     app: 'app',
-    dist: 'dist'
+    dist: 'dist',
+    server: '/Volumes/MediaRobot'
   };
 
   // Define the configuration for all the tasks
@@ -57,7 +58,7 @@ module.exports = function (grunt) {
       },
       requirejs: {
         files: ['<%= config.app %>/scripts/lib/{,*/}*.js'],
-        tasks: ['requirejs']
+        tasks: ['requirejs', 'copy:devServer']
       }
     },
 
@@ -214,7 +215,7 @@ module.exports = function (grunt) {
           almond: true,
           wrap: true,
           mainConfigFile: 'app/scripts/lib/config.js',
-          out: '<%= config.dist %>/require.js',
+          out: '<%= config.dist %>/flixpress.js',
           optimize: 'none'
         }
       }
@@ -353,6 +354,17 @@ module.exports = function (grunt) {
             'images/{,*/}*.webp',
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*'
+          ]
+        }]
+      },
+      devServer: {
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%= config.dist %>',
+          dest: '<%= config.server %>/scripts/flixpress-js/',
+          src: [
+            'flixpress.js'
           ]
         }]
       }
