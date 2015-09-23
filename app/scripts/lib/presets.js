@@ -61,7 +61,7 @@ function() {
       flashvars.TemplateId,
       flashvars.MinutesRemainingInContract,
       flashvars.MinimumTemplateDuration,
-      flashvars.Mode,
+      "Edit", // Must always be in Edit mode for presets
       flashvars.isU
     );
   };
