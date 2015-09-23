@@ -15,6 +15,8 @@ function() {
     $('object').remove();
   }
 
+  // This could probably get moved to another module and
+  // required for this one.
   function safeQueryStringToJSON(string) {            
     pairs = string.slice().split('&');
     
@@ -51,6 +53,7 @@ function() {
     if (!el) {return false;}
     el.value = XMLString;
     prepareDOM();
+    // This function is defined in flixpress.com/Templates/Scripts/SetupRndTemplateFlash.js
     SetupRndTemplateFlash(
       flashvars.swf,
       replaceDivId,
@@ -63,10 +66,15 @@ function() {
     );
   };
 
+  // Reloads the presets that were on the page when it
+  // first loaded
   var reloadCurrent = function () {
     loadPreset(getPresets()[0]);
   }
 
+  // This actully wires up Flixpress.presets.etcetera
+  // There might be a better way to do this, but I
+  // am not familiar with it yet.
   return {
     presets: {
       loadPreset: loadPreset,
