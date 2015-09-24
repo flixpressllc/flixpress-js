@@ -2,6 +2,7 @@
 // define(['bower_components/componentName/file'])
 
 define([
+  "./help-menu",
   "./presets"
   ],
 function(Flixpress) {
