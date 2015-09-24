@@ -2,11 +2,10 @@
 // define(['components/componentName/file'])
 
 define([
-  "./core"
+  "./core",
+  "./contexts/editor-window"
   ],
-function( Flixpress ) {
-
-  var context = function(){return $('#cboxWrapper iframe')[0].contentWindow;};
+function( Flixpress, context ) {
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
