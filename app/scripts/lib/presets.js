@@ -7,12 +7,14 @@ define([
   ],
 function() {
 
+  var context = function(){return $('#cboxWrapper iframe')[0].contentWindow;};
+
   var replaceDivId = 'Template_FlashContent_Div';
-  var xmlContainerDiv = $('#RndTemplate_HF')[0];
+  var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
 
   function prepareDOM () {
-    $('object').parent().prepend($('<div id="' + replaceDivId + '"></div>'));
-    $('object').remove();
+    context().$('object').parent().prepend($('<div id="' + replaceDivId + '"></div>'));
+    context().$('object').remove();
   }
 
   // This could probably get moved to another module and
@@ -31,30 +33,30 @@ function() {
 
 
   var getPresets = function () {
-    return [xmlContainerDiv.value];
+    return [xmlContainerDiv().value];
   };
 
   // gets many of the vars we will be using in SetupRndTemplateFlash
   var getVars = function () {
-    var varString = $('object param[name="flashvars"]')[0].value;
+    var varString = context().$('object param[name="flashvars"]')[0].value;
     var varObject = safeQueryStringToJSON( varString );
 
     // Still need the .swf file. It is in <object data="file.swf?v2">
     // We need it without the v2 stuff
-    var swfFile = $('object')[0].data.split('?')[0];
+    var swfFile = context().$('object')[0].data.split('?')[0];
 
     varObject.swf = swfFile;
     return varObject;
   }
 
   var loadPreset = function (XMLString) {
-    var el = xmlContainerDiv;
+    var el = xmlContainerDiv();
     var flashvars = getVars();
     if (!el) {return false;}
     el.value = XMLString;
     prepareDOM();
     // This function is defined in flixpress.com/Templates/Scripts/SetupRndTemplateFlash.js
-    SetupRndTemplateFlash(
+    context().SetupRndTemplateFlash(
       flashvars.swf,
       replaceDivId,
       flashvars.Username,
@@ -79,7 +81,8 @@ function() {
     presets: {
       loadPreset: loadPreset,
       getPresets: getPresets,
-      reloadCurrent: reloadCurrent
+      reloadCurrent: reloadCurrent,
+      container: xmlContainerDiv
     }
   };
 
