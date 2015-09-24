@@ -58,7 +58,7 @@ module.exports = function (grunt) {
       },
       requirejs: {
         files: ['<%= config.app %>/scripts/lib/{,*/}*.js'],
-        tasks: ['requirejs', 'copy:devServer']
+        tasks: ['requirejs', 'copy:devServer', 'beep']
       }
     },
 
