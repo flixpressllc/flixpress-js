@@ -69,7 +69,14 @@ function( Flixpress, context ) {
   // Reloads the presets that were on the page when it
   // first loaded
   var reloadCurrent = function () {
-    loadPreset(getPresets()[0]);
+    if (getVars().Mode === "Add") {
+      // We cannot reload the previous state if it was in Add mode to begin.
+      // Well, we can... but it's pointless.
+      return false;
+    } else {
+      loadPreset(getPresets()[0]);
+      return true;      
+    }
   }
 
   Flixpress.presets = {
