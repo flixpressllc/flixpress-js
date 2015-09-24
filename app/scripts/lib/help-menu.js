@@ -1,7 +1,6 @@
 define([
-  // 'some/module'
-  ],
-function() { return {helpMenu: function(){
+  "./core"
+], function( Flixpress ) { Flixpress.helpMenu = function(){
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -301,5 +300,5 @@ function() { return {helpMenu: function(){
     // catch failures
   });
 
-}}
+};
 });

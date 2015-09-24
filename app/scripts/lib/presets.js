@@ -1,11 +1,10 @@
 // to depend on a bower installed component:
 // define(['components/componentName/file'])
 
-// At one time was using JXON fork at happycollision/jxon
 define([
-  // "components/jxon/index",
+  "./core"
   ],
-function() {
+function( Flixpress ) {
 
   var context = function(){return $('#cboxWrapper iframe')[0].contentWindow;};
 
@@ -74,16 +73,11 @@ function() {
     loadPreset(getPresets()[0]);
   }
 
-  // This actully wires up Flixpress.presets.etcetera
-  // There might be a better way to do this, but I
-  // am not familiar with it yet.
-  return {
-    presets: {
-      loadPreset: loadPreset,
-      getPresets: getPresets,
-      reloadCurrent: reloadCurrent,
-      container: xmlContainerDiv
-    }
+  Flixpress.presets = {
+    loadPreset: loadPreset,
+    getPresets: getPresets,
+    reloadCurrent: reloadCurrent,
+    container: xmlContainerDiv
   };
 
 });
