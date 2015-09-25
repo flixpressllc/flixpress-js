@@ -1,12 +1,15 @@
 define([
   
-], function() { return {
+], function() { 
+  return {
 
-var toTitleCase = function (str) {
-  return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
+    toTitleCase: function (str) {
+      return str.replace(/\w\S*/g, function(txt){
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
 
-};
+  };
 
 });
 
