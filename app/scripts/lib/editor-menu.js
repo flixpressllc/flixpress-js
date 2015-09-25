@@ -54,10 +54,10 @@ define([
 
     // Other Local Vars
     var data;
-    var $menuScreen = $('<div id="' + name + '-screen"><div class="content"></div></div>');
-    var $menuButton = $('<div id="' + name + '-button">Show ' + helper.toTitleCase(name) + '</div>');
-    var $menuTopics = $('<ul id="' + name + '-menu"></ul>');
-    var $detailsArea = $('<div id="' + name + '-info"></div>');
+    var $menuScreen = $('<div id="' + name + '-editor-menu-screen" class="editor-menu-screen"><div class="content"></div></div>');
+    var $menuButton = $('<div id="' + name + '-editor-menu-button" class="editor-menu-button">Show ' + helper.toTitleCase(name) + '</div>');
+    var $menuTopics = $('<ul class="editor-menu-menu"></ul>');
+    var $detailsArea = $('<div class="editor-menu-info"></div>');
     var jwplayers = {};
     var jwcount = 0;
 
@@ -74,10 +74,10 @@ define([
       $newInfoPane.data('' + name + '-content', $objectToAppend);
 
       // convenience for showing/hiding
-      $menuLink.addClass('' + name + '-menu-item');
+      $menuLink.addClass('editor-menu-menu-item');
       
       $menuLink.bind('click', function(){
-        $menuTopics.find('.' + name + '-menu-item').removeClass('active');
+        $menuTopics.find('.editor-menu-menu-item').removeClass('active');
         $detailsArea.find('.info-pane-item').removeClass('active');
         $menuLink.addClass('active');
         $newInfoPane.addClass('active');
@@ -139,7 +139,7 @@ define([
      */
     function createYouTubeLink (menuObject) {
       var embedHtml = '<h1>' + menuObject.name + '</h1>';
-      embedHtml += '<div class="helpVideo"><iframe width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0" frameborder="0" allowfullscreen></iframe></div>';
+      embedHtml += '<div class="video-wrapper"><iframe width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0" frameborder="0" allowfullscreen></iframe></div>';
 
       addNewTopic(menuObject, $(embedHtml) );
     }
@@ -159,7 +159,7 @@ define([
     function createVideoLink (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      var $videoDiv = $('<div class="helpVideo"></div>');
+      var $videoDiv = $('<div class="video-wrapper"></div>');
       var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data);
 
       $videoDiv.append(jwHtml);
@@ -189,7 +189,7 @@ define([
       }); 
     }
 
-    if ($('head link.' + name + '-menu').length < 1) {
+    if ($('head link.editor-menu-menu').length < 1) {
       $('head').append($('<link rel="stylesheet" type="text/css" href="'+cssFile+'">'));
     }
 
