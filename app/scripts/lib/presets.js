@@ -4,9 +4,10 @@
 define([
   "./core",
   "./contexts/editor-window",
+  "./editor-menu",
   "./editor"
   ],
-function( Flixpress, context ) {
+function( Flixpress, context, menu ) {
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
