@@ -39,7 +39,7 @@ module.exports = function (grunt) {
       },
       babel: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['babel:dist', 'requirejs']
+        tasks: ['babel:dist', 'requirejs:compile']
       },
       babelTest: {
         files: ['test/spec/{,*/}*.js'],
@@ -56,10 +56,6 @@ module.exports = function (grunt) {
         files: ['<%= config.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'postcss']
       },
-      requirejs: {
-        files: ['<%= config.app %>/scripts/lib/{,*/}*.js'],
-        tasks: ['requirejs', 'copy:devServer', 'beep']
-      }
     },
 
     browserSync: {
@@ -218,7 +214,28 @@ module.exports = function (grunt) {
           out: '<%= config.dist %>/flixpress.js',
           optimize: 'none'
         }
+      },
+      devServer: {
+        options: {
+          name: 'config',
+          almond: true,
+          wrap: true,
+          mainConfigFile: 'app/scripts/lib/config.js',
+          out: '.tmp/flixpress.js',
+          optimize: 'none'
+        }
       }
+      // Mostly copies values from above, automatically. Just tweak `optimize` to taste.
+      // compress: {
+      //   options: {
+      //     name: '<%= requirejs.compile.options.name %>', 
+      //     almond: '<%= requirejs.compile.options.almond %>',
+      //     wrap: '<%= requirejs.compile.options.wrap %>',
+      //     mainConfigFile: '<%= requirejs.compile.options.mainConfigFile %>',
+      //     out: '<%= requirejs.compile.options.out %>',
+      //     optimize: 'uglify' // the default
+      //   }
+      // }
     },
 
     // Automatically inject Bower components into the HTML file
@@ -361,10 +378,11 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           dot: true,
-          cwd: '<%= config.dist %>',
+          cwd: '.tmp',
           dest: '<%= config.server %>/scripts/flixpress-js/',
           src: [
-            'flixpress.js'
+            'flixpress{,.min}.js',
+            '**/*.css'
           ]
         }]
       }
@@ -425,7 +443,34 @@ module.exports = function (grunt) {
     ]);
   });
 
-
+  grunt.registerTask('develop', function (target) {
+    var newWatch = {
+      sass: {
+        files: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
+        tasks: ['sass', 'postcss']
+      },
+      requirejs: {
+        files: ['<%= config.app %>/scripts/lib/{,*/}*.js'],
+        tasks: ['requirejs:devServer']
+      },
+      copy: {
+        files: ['.tmp/**/*.*'],
+        tasks: ['copy:devServer', 'beep:3']
+      }
+    };
+    grunt.config.set('watch', newWatch);
+    
+    if (true) { //change this later to test that the server path is correct
+      grunt.task.run([
+        'clean:server',
+        'sass',
+        'postcss',
+        'requirejs:devServer',
+        'copy:devServer',
+        'watch'
+      ]);
+    }
+  });
 
   grunt.registerTask('build', [
     'clean:dist',
