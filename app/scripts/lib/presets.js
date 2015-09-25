@@ -81,10 +81,34 @@ function( Flixpress, context, menu ) {
     }
   };
 
+  Flixpress.editor.getPresetFile = function(url){
+    //get file
+    var data;
+    var presetXML = $.ajax(url,{dataType: 'text'});
+    presetXML.done(function(data){
+      console.log(data);
+      loadPreset(data);
+    });
+  };
+
 
   Flixpress.editor.presets = function () {
-    console.log('presets launched');
-    menu.registerNewMenu('presets', true, '/help/help-json.js');
+
+    //wait for object:
+    var $promise = new $.Deferred();
+    var count = 0;
+    function tryObject () {
+      if( context().$('object param[name="flashvars"]').length > 0 ) {
+        $promise.resolve();
+        return true;
+      }
+      if (++count < 100) { setTimeout(tryObject, 200); }
+    }
+    tryObject();
+
+    $promise.done(function(){
+      menu.registerNewMenu('presets', true, '/templates/presets/template' + getVars().TemplateId + '.js');      
+    });
   };
 
 });

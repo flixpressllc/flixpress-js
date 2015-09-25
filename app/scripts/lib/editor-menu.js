@@ -156,6 +156,34 @@ define([
      * For creating menu items with the following format:
      * 
      * "name": "Any String", (will become the menu name)
+     * "type": "preset", (literal)
+     * "data": {
+     *    "video": "/url/to/video.mp4", (example: /Video/help/basic/adding-audio.mp4)
+     *    "xml": "/url/to/file.xml" (example: )
+     */
+    function createPresetDetails (menuObject) {
+      var $embedHtml = $('<div></div>');
+      var title = '<h1>' + menuObject.name + '</h1>';
+      var $videoDiv = $('<div class="video-wrapper"></div>');
+      var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data.video);
+      var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
+
+      $presetButton.on('click', function(e) {
+        e.preventDefault();
+        Flixpress.editor.getPresetFile(menuObject.data.xml);
+        $(this).trigger('close_' + name + '_menu');
+      });
+      
+      $videoDiv.append(jwHtml);
+      $embedHtml.append(title, $videoDiv, $presetButton);
+
+      addNewTopic(menuObject, $embedHtml );
+    }
+
+    /*
+     * For creating menu items with the following format:
+     * 
+     * "name": "Any String", (will become the menu name)
      * "type": "video", (literal)
      * "data": "/url/to/video.mp4" (example: /Video/help/basic/adding-audio.mp4)
      *
@@ -229,6 +257,9 @@ define([
             break;
           case('html'):
             createHtmlPane(menuObject);
+            break;
+          case('preset'):
+            createPresetDetails(menuObject);
             break;
           case('section'):
             addNewHeading(menuObject);
@@ -308,6 +339,7 @@ define([
       // things to always do...
     }).fail(function(){
       // catch failures
+      // really, just do nothing when a menu doesn't exist
     });
   };
   return {registerNewMenu: registerNewMenu};
