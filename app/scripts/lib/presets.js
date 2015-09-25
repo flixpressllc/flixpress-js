@@ -84,7 +84,7 @@ function( Flixpress, context, menu ) {
 
   Flixpress.editor.presets = function () {
     console.log('presets launched');
-    menu.registerNewMenu('presets', '/help/help-json.js', '/help/help-menu.css');
+    menu.registerNewMenu('presets', true, '/help/help-json.js');
   };
 
 });

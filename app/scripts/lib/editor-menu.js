@@ -2,7 +2,7 @@ define([
   "./helper-functions"
 ], function( helper ) { 
 
-  var registerNewMenu = function (name, jsonFile, cssFile) {
+  var registerNewMenu = function (name, cssFile, jsonFile) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -19,8 +19,12 @@ define([
 
     //////// Dependencies
     
-    cssFile = cssFile || '/scripts/flixpress/styles/' + name + '-menu.css';
-    jsonFile = jsonFile || '/scripts/flixpress/menu-data/' + name + '-json.js';
+    if (cssFile === true ){
+      cssFile = '/scripts/flixpress-js/styles/' + name + '-menu.css';
+      // Otherwise, it's handled below.
+    }
+
+    jsonFile = jsonFile || '/scripts/flixpress-js/menu-data/' + name + '-json.js';
 
     /*
      * NOTE: The JSON file above must be perfectly formatted
@@ -189,8 +193,12 @@ define([
       }); 
     }
 
-    if ($('head link.editor-menu-menu').length < 1) {
-      $('head').append($('<link rel="stylesheet" type="text/css" href="'+cssFile+'">'));
+    if ($('head link.editor-menus').length < 1) {
+      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="/scripts/flixpress-js/styles/editor-menu.css">'));
+    }
+
+    if (cssFile) {
+      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + cssFile + '">'));
     }
 
     var $jwPromise;
