@@ -3,7 +3,8 @@
 
 define([
   "./core",
-  "./contexts/editor-window"
+  "./contexts/editor-window",
+  "./editor"
   ],
 function( Flixpress, context ) {
 
