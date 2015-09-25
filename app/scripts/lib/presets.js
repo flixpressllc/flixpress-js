@@ -79,13 +79,12 @@ function( Flixpress, context, menu ) {
       loadPreset(getPresets()[0]);
       return true;      
     }
-  }
+  };
 
-  Flixpress.presets = {
-    loadPreset: loadPreset,
-    getPresets: getPresets,
-    reloadCurrent: reloadCurrent,
-    container: xmlContainerDiv
+
+  Flixpress.editor.presets = function () {
+    console.log('presets launched');
+    menu.registerNewMenu('presets', '/help/help-json.js', '/help/help-menu.css');
   };
 
 });
