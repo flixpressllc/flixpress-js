@@ -1,0 +1,130 @@
+#colorbox{
+  overflow: visible;
+  outline: none;
+}
+
+.editor-menu-button {
+  position: absolute;
+  color: white;
+  top: -50px;
+  height: 1em;
+  font-size: 1.5em;
+  background: #222;
+  border: 2px solid #777;
+  display: block;
+  margin: 8px;
+  height: auto;
+  padding: 8px;
+  width: 7em;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10001;
+}
+
+.editor-menu-button:hover {
+  background: #444;
+  border-color: #000;
+}
+
+.editor-menu-button.active,
+.editor-menu-button.active:hover {
+  background: grey;
+  color: white;
+  border-color: #000;
+}
+
+.editor-menu-screen,
+.editor-menu-screen *,
+.editor-menu-button {
+  box-sizing: border-box;
+}
+
+.editor-menu-screen {
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  z-index: 10000;
+}
+
+.editor-menu-screen.active {
+  display: block;
+}
+
+.editor-menu-screen .content {
+  background: white;
+  border-radius: 3px;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.editor-menu-menu {
+  background: grey;
+  margin: 0;
+  color: white;
+  width: 33%;
+  height: 100%;
+  font-size: 18px;
+  float: left;
+  overflow-y: auto;
+}
+
+.editor-menu-menu li {
+  list-style: none;
+}
+
+.editor-menu-menu li.section {
+  display: block;
+  padding: 8px;
+  color: #000;
+  border-bottom: 1px solid #000;
+  margin-top: 18px;
+}
+
+.editor-menu-menu li a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 8px 8px 8px 24px;
+  cursor: pointer;
+}
+
+.editor-menu-menu li a:hover {
+  background: #ccc;
+  color: grey;
+}
+
+.editor-menu-menu li a.active,
+.editor-menu-menu li a.active:hover {
+  background: white;
+  color: black;
+}
+
+.editor-menu-info {
+  position: relative;
+  display: block;
+  width: 67%;
+  float: left;
+  height: 100%;
+}
+
+/* Using positioning to hide/show allows
+   jwplayer to keep the video loaded
+   so it doesn't have to make more requests */
+   
+.editor-menu-info .info-pane-item {
+  display: block;
+  position: absolute;
+  left: -99999px;
+  padding: 8px;
+  float: left;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.editor-menu-info .info-pane-item.active {
+  left: 0;
+}

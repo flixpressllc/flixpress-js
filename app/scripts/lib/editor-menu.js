@@ -19,7 +19,7 @@ define([
 
     //////// Dependencies
     
-    cssFile = cssFile || '/scripts/flixpress/menu-data/' + name + '-menu.css';
+    cssFile = cssFile || '/scripts/flixpress/styles/' + name + '-menu.css';
     jsonFile = jsonFile || '/scripts/flixpress/menu-data/' + name + '-json.js';
 
     /*
