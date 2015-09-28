@@ -170,8 +170,10 @@ define([
 
       $presetButton.on('click', function(e) {
         e.preventDefault();
-        Flixpress.editor.getPresetFile(menuObject.data.xml);
-        $(this).trigger('close_' + name + '_menu');
+        if (window.confirm('Loading a preset will erase any work you\'ve already done in this template. Are you sure you want to continue?')){
+          Flixpress.editor.getPresetFile(menuObject.data.xml);
+          $(this).trigger('close_' + name + '_menu');          
+        }
       });
       
       $videoDiv.append(jwHtml);
