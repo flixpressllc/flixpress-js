@@ -283,6 +283,20 @@ define([
         $menuButton.remove();
         $(document).unbind('open_' + name + '_menu');
         $(document).unbind('close_' + name + '_menu');
+        $(document).unbind('click.offMenu');
+      });
+
+      $(document).bind('click.offMenu', function(event){
+        var $clicked = $(event.target)
+        if (
+          // Click was outside the modal box
+          !$clicked.closest(modalJQSelector).length ||
+          // Click was on a different menu-button 
+          ( $clicked.hasClass('editor-menu-button') && $clicked.attr('id') !== name + '-editor-menu-button')
+        ) {
+          // Close this menu
+          $(this).trigger('close_' + name + '_menu');
+        }
       });
 
       $(document).bind('open_' + name + '_menu', function(event){
@@ -304,20 +318,12 @@ define([
         $menuButton.addClass('active').html('Hide ' + helper.toTitleCase(name) );
         $menuScreen.addClass('active');
 
-        $(document).bind('click.modal', function(event){
-          if (!$(event.target).closest(modalJQSelector).length) {
-            // Click was outside the menu
-            $(this).trigger('close_' + name + '_menu');
-          }
-        });
-
         pauseUnderlyingPlayer();
       });
+      
       $(document).bind('close_' + name + '_menu', function(){
         $menuButton.removeClass('active').html('Show ' + helper.toTitleCase(name) );
-        $menuScreen.removeClass('active');
-        $(document).unbind('click.modal');
-        
+        $menuScreen.removeClass('active');        
       });
 
       $menuTopics.on('click','a', function(){
