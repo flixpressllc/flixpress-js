@@ -1,7 +1,14 @@
 define([
 ], function () {
   var Flixpress = {};
-  // We may need to do some work here, eventually.
-  // may as well have it in place.
+  
+  Flixpress.dev = false;
+
+  if (Flixpress.dev === true){
+    Flixpress.serverLocation = 'https://s3.amazonaws.com/flixpress/dev_files'; // No ending forward slash
+  } else {
+    Flixpress.serverLocation = '';
+  }
+
   return Flixpress;
 } );

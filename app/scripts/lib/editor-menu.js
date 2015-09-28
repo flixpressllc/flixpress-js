@@ -1,6 +1,7 @@
 define([
+  "./core",
   "./helper-functions"
-], function( helper ) { 
+], function( Flixpress, helper ) { 
 
   var registerNewMenu = function (name, cssFile, jsonFile) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -20,11 +21,11 @@ define([
     //////// Dependencies
     
     if (cssFile === true ){
-      cssFile = '/scripts/flixpress-js/styles/' + name + '-menu.css';
+      cssFile = Flixpress.serverLocation + '/scripts/flixpress-js/styles/' + name + '-menu.css';
       // Otherwise, it's handled below.
     }
 
-    jsonFile = jsonFile || '/scripts/flixpress-js/menu-data/' + name + '-json.js';
+    jsonFile = jsonFile || Flixpress.serverLocation + '/scripts/flixpress-js/menu-data/' + name + '-json.js';
 
     /*
      * NOTE: The JSON file above must be perfectly formatted
@@ -42,7 +43,7 @@ define([
 
     //////// Preferences
 
-    var pathToJWSkin = '/Video/features/flixsix.xml'; // set null for default
+    var pathToJWSkin = Flixpress.serverLocation + '/Video/features/flixsix.xml'; // set null for default
     var width = 640; // for video
     var height = 360; // for video
     var flashOrHtml = 'flash';
@@ -224,7 +225,7 @@ define([
     }
 
     if ($('head link.editor-menus').length < 1) {
-      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="/scripts/flixpress-js/styles/editor-menu.css">'));
+      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + Flixpress.serverLocation + '/scripts/flixpress-js/styles/editor-menu.css">'));
     }
 
     if (cssFile) {

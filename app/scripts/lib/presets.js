@@ -55,7 +55,7 @@ function( Flixpress, context, menu ) {
     if (!el) {return false;}
     el.value = XMLString;
     prepareDOM();
-    // This function is defined in flixpress.com/Templates/Scripts/SetupRndTemplateFlash.js
+    // This function is defined in /Templates/Scripts/SetupRndTemplateFlash.js
     context().SetupRndTemplateFlash(
       flashvars.swf,
       replaceDivId,
@@ -107,7 +107,7 @@ function( Flixpress, context, menu ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, '/templates/presets/template' + getVars().TemplateId + '.js');      
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');      
     });
   };
 
