@@ -27,6 +27,10 @@ define([
 
     jsonFile = jsonFile || Flixpress.serverLocation + '/Scripts/flixpress-js/menu-data/' + name + '-json.js';
 
+    // possibly add server locations
+    cssFile = (typeof cssFile === 'String') ? Flixpress.addServerLocation(cssFile) : cssFile ;
+    jsonFile = (typeof jsonFile === 'String') ? Flixpress.addServerLocation(jsonFile) : jsonFile ;
+
     /*
      * NOTE: The JSON file above must be perfectly formatted
      * or the script will fail silently. Use a validator.
@@ -43,7 +47,7 @@ define([
 
     //////// Preferences
 
-    var pathToJWSkin = Flixpress.serverLocation + '/Video/features/flixsix.xml'; // set null for default
+    var pathToJWSkin = '/Video/features/flixsix.xml'; // no server location. This is separate from Flixpress-js
     var width = 640; // for video
     var height = 360; // for video
     var flashOrHtml = 'flash';
@@ -159,17 +163,17 @@ define([
      * "name": "Any String", (will become the menu name)
      * "type": "preset", (literal)
      * "data": {
-     *    "video": "/url/to/video.mp4", (example: /Video/help/basic/adding-audio.mp4)
-     *    "xml": "/url/to/file.xml" (example: )
+     *    "video": "/url/to/video.mp4", // if forward slash starts the string, Flixpress.serverLocation will be prepended
+     *    "xml": "/url/to/file.xml"     // if forward slash starts the string, Flixpress.serverLocation will be prepended
      */
     function createPresetDetails (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
       var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data.video);
+      var jwHtml = jwplayerPrepare( newJwDiv(), Flixpress.addServerLocation(menuObject.data.video) );
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
       // if the xml file starts with a slash, add the server location to the beginning.
-      var xmlUrl = menuObject.data.xml.charAt(0) === '/' ? Flixpress.serverLocation + menuObject.data.xml : menuObject.data.xml;
+      var xmlUrl = Flixpress.addServerLocation(menuObject.data.xml);
 
       $presetButton.on('click', function(e) {
         e.preventDefault();
