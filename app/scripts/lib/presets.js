@@ -168,7 +168,7 @@ function( Flixpress, context, menu, jxon ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().TemplateId + '.js');
       if (Flixpress.dev) {
         console.log(getCurrentConditions('xml'));
       }
