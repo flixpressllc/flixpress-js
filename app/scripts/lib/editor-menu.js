@@ -174,7 +174,11 @@ define([
       $presetButton.on('click', function(e) {
         e.preventDefault();
         if (window.confirm('Loading a preset will erase any work you\'ve already done in this template. Are you sure you want to continue?')){
+
+          // This line is a circular dependency. However, it is only executed on
+          // user interaction (per the 'click' above), so it should work just fine.
           Flixpress.editor.getPresetFile(xmlUrl);
+          
           $(this).trigger('close_' + name + '_menu');          
         }
       });
