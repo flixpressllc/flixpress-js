@@ -379,7 +379,7 @@ module.exports = function (grunt) {
           expand: true,
           dot: true,
           cwd: '.tmp',
-          dest: '<%= config.server %>/scripts/flixpress-js/',
+          dest: '<%= config.server %>/Scripts/flixpress-js/',
           src: [
             'flixpress{,.min}.js',
             '**/*.css'
@@ -388,7 +388,7 @@ module.exports = function (grunt) {
           expand: true,
           dot: true,
           cwd: '<%= config.app %>/scripts',
-          dest: '<%= config.server %>/scripts/flixpress-js/',
+          dest: '<%= config.server %>/Scripts/flixpress-js/',
           src: [
             '!flixpress{,.min}.js',
             '**/*',

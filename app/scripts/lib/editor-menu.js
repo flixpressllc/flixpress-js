@@ -21,11 +21,11 @@ define([
     //////// Dependencies
     
     if (cssFile === true ){
-      cssFile = Flixpress.serverLocation + '/scripts/flixpress-js/styles/' + name + '-menu.css';
+      cssFile = Flixpress.serverLocation + '/Scripts/flixpress-js/styles/' + name + '-menu.css';
       // Otherwise, it's handled below.
     }
 
-    jsonFile = jsonFile || Flixpress.serverLocation + '/scripts/flixpress-js/menu-data/' + name + '-json.js';
+    jsonFile = jsonFile || Flixpress.serverLocation + '/Scripts/flixpress-js/menu-data/' + name + '-json.js';
 
     /*
      * NOTE: The JSON file above must be perfectly formatted
@@ -225,7 +225,7 @@ define([
     }
 
     if ($('head link.editor-menus').length < 1) {
-      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + Flixpress.serverLocation + '/scripts/flixpress-js/styles/editor-menu.css">'));
+      $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + Flixpress.serverLocation + '/Scripts/flixpress-js/styles/editor-menu.css">'));
     }
 
     if (cssFile) {
