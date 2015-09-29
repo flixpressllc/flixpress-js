@@ -85,6 +85,8 @@ define([
       // convenience for showing/hiding
       $menuLink.addClass('editor-menu-menu-item');
       
+      var $firstLoadComplete = $.Deferred();
+
       $menuLink.bind('click', function(){
         $menuTopics.find('.editor-menu-menu-item').removeClass('active');
         $detailsArea.find('.info-pane-item').removeClass('active');
@@ -96,31 +98,61 @@ define([
           // doing this only on the first click should prevent
           // any preloading.
 
-          window.storedData = $newInfoPane.data('' + name + '-content');
           $newInfoPane.append($newInfoPane.data('' + name + '-content'));
           $newInfoPane.data('' + name + '-content', 'applied');
-          jwplayerSetup($newInfoPane);
+          
+          var $playersComplete = jwplayerSetup($newInfoPane);
+          $playersComplete.done(function(){
+            $firstLoadComplete.resolve();
+          });
         }
       });
+
+      $firstLoadComplete.done(function(){console.log('loaded')});
 
       menuObject.$placeholder.append( $menuLink );
       $detailsArea.append( $newInfoPane );
 
+      return {link: $menuLink, details: $newInfoPane, firstLoad: $firstLoadComplete};
     }
 
+    
     function jwplayerSetup($infoPane){
-      $infoPane.find('.jwplayer-video').each(function(){
+      var $jwPlayers = $infoPane.find('.jwplayer-video');
+
+      if ($jwPlayers.length < 1) {
+        return $.Deferred().resolve();
+      }
+
+      var allPromises = [];
+
+      $jwPlayers.each(function(){
+        var $thisDone = $.Deferred();
+        allPromises.push($thisDone);
+        
         var id = $(this).attr('id');
         var options = jwplayers[id];
+        
         $jwPromise.done(function(){
+        
           jwplayer(id).setup(options).onTime(function(timing){
             // Detect near end of video
             if (timing.position > (timing.duration - 0.3) ){
                 jwplayer(id).seek(0).pause(true);
             }
+          }).onReady(function(){
+            $thisDone.resolve();
+            // Play on first load only.
+            setTimeout(function(){jwplayer(id).play();}, 1);
           });        
+        
         });
       });
+      
+      var $allDone = $.Deferred();
+      $.when.apply(this, allPromises).then(function(){ $allDone.resolve() })
+
+      return $allDone;
     }
 
     function jwplayerPrepare(divId, videoUrl, options) {
@@ -148,7 +180,7 @@ define([
      */
     function createYouTubeLink (menuObject) {
       var embedHtml = '<h1>' + menuObject.name + '</h1>';
-      embedHtml += '<div class="video-wrapper"><iframe width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0" frameborder="0" allowfullscreen></iframe></div>';
+      embedHtml += '<div class="video-wrapper"><iframe width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0&autoplay=true" frameborder="0" allowfullscreen></iframe></div>';
 
       addNewTopic(menuObject, $(embedHtml) );
     }
@@ -170,7 +202,8 @@ define([
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
       var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwHtml = jwplayerPrepare( newJwDiv(), Flixpress.addServerLocation(menuObject.data.video) );
+      var jwDiv = newJwDiv();
+      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.addServerLocation(menuObject.data.video) );
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
       // if the xml file starts with a slash, add the server location to the beginning.
       var xmlUrl = Flixpress.addServerLocation(menuObject.data.xml);
@@ -190,7 +223,16 @@ define([
       $videoDiv.append(jwHtml);
       $embedHtml.append(title, $videoDiv, $presetButton);
 
-      addNewTopic(menuObject, $embedHtml );
+      var addedTopic = addNewTopic(menuObject, $embedHtml );
+
+      addedTopic.link.on('click', function(){
+        addedTopic.firstLoad.done(function(){ 
+          // Anything that needs completing after the topic is completely loaded goes here
+          // It will still fire on every click, but it will wait the first time for load to
+          // complete
+
+        })
+      })
     }
 
     /*
