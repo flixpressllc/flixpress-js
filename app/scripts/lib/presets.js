@@ -134,17 +134,9 @@ function( Flixpress, context, menu, jxon ) {
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
       if (Flixpress.dev) {
-        console.log(Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
+        console.log(getCurrentPreset()[0]);
       }
     });
   };
-
-  Flixpress.editor.getCurrentPreset = function () {
-    if (Flixpress.dev) {
-      console.log(jxon);
-      console.log(jxon);
-      console.log(getCurrentPreset()[0]); //weird that it needs the [0]
-    }
-  }
 
 });
