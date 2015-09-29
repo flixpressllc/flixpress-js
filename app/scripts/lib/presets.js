@@ -37,8 +37,39 @@ function( Flixpress, context, menu, jxon ) {
   }
 
 
-  var getCurrentPreset = function () {
-    return [xmlContainerDiv().value];
+  var getCurrentConditions = function (returnType) {
+    var currentConditions = jxon.stringToJs( xmlContainerDiv().value );
+    var pipedImagesExists = context().$('#CroppedImageFilenames')[0].value !== '';
+    
+    // in "Add" mode, RenderedData won't be there yet, so we have to add it.
+    if (currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData === undefined) {
+      currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData = {};
+      currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls = {};
+      currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String = [];
+    }
+
+    // pipedImgages will exist whenever user images have first been uploaded to the template before saving a preview
+    if (pipedImagesExists) {
+      // Combine everything into on json object
+      
+      // Image file names are pipe delineated
+      var pipedImagesArray = context().$('#CroppedImageFilenames').attr('value').split('|');
+
+      // Finally add in the piped images.
+      for (var i = pipedImagesArray.length - 1; i >= 0; i--) {
+        if (pipedImagesArray[i] !== ''){
+          currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String.unshift(pipedImagesArray[i])
+        }
+      };
+
+    }
+
+
+    if (returnType === 'xml') {
+      return jxon.jsToString( currentConditions );
+    } else {
+      return currentConditions;
+    }
   };
 
   // gets many of the vars we will be using in SetupRndTemplateFlash
@@ -54,30 +85,34 @@ function( Flixpress, context, menu, jxon ) {
     return varObject;
   }
 
-  var splicePhotos = function (XMLString) {
-    var currentPreset = jxon.stringToJs(getCurrentPreset());
-    var oldPhotosArray = currentPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String ? currentPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String : [];
-    var newPreset = jxon.stringToJs(XMLString);
-    var newPhotosArray = newPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String ? newPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String : [];
-    console.log(oldPhotosArray, newPhotosArray);
-    for (var i = 0; i < oldPhotosArray.length; i++) {
-      console.log('index of '+oldPhotosArray[i], newPhotosArray.indexOf(oldPhotosArray[i]))
-      if (newPhotosArray.indexOf(oldPhotosArray[i]) === -1){
+  /*
+   * preset: (object) JXON.stringToJs version of an XML preset
+   */
+  var addCurrentPhotosToPreset = function (preset) {
+    var currentConditions = getCurrentConditions();
+    var currentPhotosArray = currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
+    var newPhotosArray = preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
+    
+    console.log(currentPhotosArray, newPhotosArray);
+    
+    for (var i = currentPhotosArray.length - 1; i >= 0; i--) {
+      if (newPhotosArray.indexOf(currentPhotosArray[i]) === -1){
         // Then the new array doesn't contain the old value. Add it.
-        newPhotosArray.unshift(oldPhotosArray[i]);
+        newPhotosArray.unshift(currentPhotosArray[i]);
       }
     };
-    console.log(oldPhotosArray, newPhotosArray);
-    console.log(newPreset);
+    
+    console.log(currentPhotosArray, newPhotosArray);
+    console.log(preset);
 
-    return jxon.jsToString(newPreset);
+    return preset;
   }
 
-  var loadPreset = function (XMLString) {
+  var loadPreset = function (xmlObject) {
     var el = xmlContainerDiv();
     var flashvars = getVars();
     if (!el) {return false;}
-    el.value = XMLString;
+    el.value = jxon.jsToString(xmlObject);
     prepareDOM();
     // This function is defined in /Templates/Scripts/SetupRndTemplateFlash.js
     context().SetupRndTemplateFlash(
@@ -100,7 +135,7 @@ function( Flixpress, context, menu, jxon ) {
       // Well, we can... but it's pointless.
       return false;
     } else {
-      loadPreset(getCurrentPreset()[0]);
+      loadPreset(getCurrentConditions());
       return true;      
     }
   };
@@ -111,7 +146,8 @@ function( Flixpress, context, menu, jxon ) {
     var data;
     var presetXML = $.ajax(url,{dataType: 'text'});
     presetXML.done(function(data){
-      data = splicePhotos(data);
+      data = jxon.stringToJs(data);
+      data = addCurrentPhotosToPreset(data);
       loadPreset(data);
     });
   };
@@ -134,7 +170,7 @@ function( Flixpress, context, menu, jxon ) {
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
       if (Flixpress.dev) {
-        console.log(getCurrentPreset()[0]);
+        // console.log(getCurrentConditions('xml'));
       }
     });
   };
