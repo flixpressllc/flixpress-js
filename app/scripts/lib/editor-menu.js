@@ -154,7 +154,7 @@ define([
     }
 
     function newJwDiv () {
-      return 'jwnum'+(++jwcount);
+      return name + '-jwnum'+(++jwcount);
     }
 
     /*
