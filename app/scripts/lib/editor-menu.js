@@ -230,7 +230,7 @@ define([
       $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + Flixpress.serverLocation + '/Scripts/flixpress-js/styles/editor-menu.css">'));
     }
 
-    if (cssFile) {
+    if (cssFile && $('head link.editor-menus[href="' + cssFile + '"]').length < 1) {
       $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + cssFile + '">'));
     }
 
@@ -337,6 +337,7 @@ define([
       });
 
       $menuScreen.find('.content').append($menuTopics,$detailsArea);
+      $(modalJQSelector).find('#'+name+'-editor-menu-button, #'+name+'-editor-menu-screen').remove();
       $(modalJQSelector).append($menuButton, $menuScreen);
 
       // Hack to get around colorbox setting overflow to hidden on all resizes
