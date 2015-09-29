@@ -175,6 +175,6 @@ function( Flixpress, context, menu, jxon ) {
     });
   };
 
-  Flixpress.editor.getPresetXML = function () { return getCurrentConditions('xml'); }
+  Flixpress.editor.getPresetXML = function () { console.log(getCurrentConditions('xml')); return getCurrentConditions('xml'); }
 
 });
