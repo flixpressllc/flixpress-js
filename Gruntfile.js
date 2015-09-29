@@ -376,6 +376,9 @@ module.exports = function (grunt) {
         }]
       },
       devServer: {
+        options: {
+          mode: '0755'
+        },
         files: [{
           expand: true,
           dot: true,
