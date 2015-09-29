@@ -168,11 +168,13 @@ define([
       var $videoDiv = $('<div class="video-wrapper"></div>');
       var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data.video);
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
+      // if the xml file starts with a slash, add the server location to the beginning.
+      var xmlUrl = menuObject.data.xml.charAt(0) === '/' ? Flixpress.serverLocation + menuObject.data.xml : menuObject.data.xml;
 
       $presetButton.on('click', function(e) {
         e.preventDefault();
         if (window.confirm('Loading a preset will erase any work you\'ve already done in this template. Are you sure you want to continue?')){
-          Flixpress.editor.getPresetFile(menuObject.data.xml);
+          Flixpress.editor.getPresetFile(xmlUrl);
           $(this).trigger('close_' + name + '_menu');          
         }
       });
