@@ -68,7 +68,9 @@ define([
     var $menuTopics = $('<ul class="editor-menu-menu"></ul>');
     var $detailsArea = $('<div class="editor-menu-info"></div>');
     var jwplayers = {};
+    var ytplayers = {};
     var jwcount = 0;
+    var ytcount = 0;
 
     function addNewHeading ( menuObject ) {
       menuObject.$placeholder
@@ -179,14 +181,31 @@ define([
      *
      */
     function createYouTubeLink (menuObject) {
-      var embedHtml = '<h1>' + menuObject.name + '</h1>';
-      embedHtml += '<div class="video-wrapper"><iframe width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0&autoplay=true" frameborder="0" allowfullscreen></iframe></div>';
+      // Let's make sure we've got the youtube api ready
+      if ($('script[src="https://www.youtube.com/iframe_api"]').length < 1) {
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
 
-      addNewTopic(menuObject, $(embedHtml) );
+      var ytDiv = newYtDiv();
+
+      var embedHtml = '<h1>' + menuObject.name + '</h1>';
+      embedHtml += '<div class="video-wrapper"><iframe id="'+ ytDiv +'" width="'+ width +'" height="'+ height +'" src="https://www.youtube.com/embed/' + menuObject.data + '?rel=0&autoplay=true&enablejsapi=1" frameborder="0" allowfullscreen></iframe></div>';
+
+      var addedTopic = addNewTopic(menuObject, $(embedHtml) );
+      addedTopic.firstLoad.done(function(){
+        ytplayers[ytDiv] = new YT.Player(ytDiv);
+      });
     }
 
     function newJwDiv () {
       return name + '-jwnum'+(++jwcount);
+    }
+
+    function newYtDiv () {
+      return name + '-ytnum'+(++ytcount);
     }
 
     /*
@@ -375,18 +394,27 @@ define([
       
       $(document).bind('close_' + name + '_menu', function(){
         $menuButton.removeClass('active').html('Show ' + helper.toTitleCase(name) );
-        $menuScreen.removeClass('active');        
+        $menuScreen.removeClass('active');
+        pauseAllPlayers();
       });
 
-      $menuTopics.on('click','a', function(){
-        // Pause other jwplayers on click
+      function pauseAllPlayers () {
+        // Pause other jwplayers
         for (var prop in jwplayers) {
           if (jwplayer(prop).pause !== undefined){
             jwplayer(prop).pause(true);
           }
         }
-        // Pause Youtube videos on click
-        // TODO
+        // Pause Youtube videos
+        for (var player in ytplayers) {
+          if (ytplayers[player].pauseVideo !== undefined){
+            ytplayers[player].pauseVideo();
+          }
+        }
+      };
+
+      $menuTopics.on('click','a', function(){
+        pauseAllPlayers();
       });
 
       $menuScreen.find('.content').append($menuTopics,$detailsArea);
