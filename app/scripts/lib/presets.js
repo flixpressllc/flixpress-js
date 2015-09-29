@@ -5,9 +5,14 @@ define([
   "./core",
   "./contexts/editor-window",
   "./editor-menu",
+  "components/jxon/index",
   "./editor"
   ],
-function( Flixpress, context, menu ) {
+function( Flixpress, context, menu, jxon ) {
+
+  jxon.config({
+    lowerCaseTags: false
+  });
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
@@ -32,7 +37,7 @@ function( Flixpress, context, menu ) {
   }
 
 
-  var getPresets = function () {
+  var getCurrentPreset = function () {
     return [xmlContainerDiv().value];
   };
 
@@ -47,6 +52,25 @@ function( Flixpress, context, menu ) {
 
     varObject.swf = swfFile;
     return varObject;
+  }
+
+  var splicePhotos = function (XMLString) {
+    var currentPreset = jxon.stringToJs(getCurrentPreset());
+    var oldPhotosArray = currentPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String ? currentPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String : [];
+    var newPreset = jxon.stringToJs(XMLString);
+    var newPhotosArray = newPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String ? newPreset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String : [];
+    console.log(oldPhotosArray, newPhotosArray);
+    for (var i = 0; i < oldPhotosArray.length; i++) {
+      console.log('index of '+oldPhotosArray[i], newPhotosArray.indexOf(oldPhotosArray[i]))
+      if (newPhotosArray.indexOf(oldPhotosArray[i]) === -1){
+        // Then the new array doesn't contain the old value. Add it.
+        newPhotosArray.unshift(oldPhotosArray[i]);
+      }
+    };
+    console.log(oldPhotosArray, newPhotosArray);
+    console.log(newPreset);
+
+    return jxon.jsToString(newPreset);
   }
 
   var loadPreset = function (XMLString) {
@@ -76,17 +100,18 @@ function( Flixpress, context, menu ) {
       // Well, we can... but it's pointless.
       return false;
     } else {
-      loadPreset(getPresets()[0]);
+      loadPreset(getCurrentPreset()[0]);
       return true;      
     }
   };
 
+  // Used by Flixpress.editor-menu
   Flixpress.editor.getPresetFile = function(url){
     //get file
     var data;
     var presetXML = $.ajax(url,{dataType: 'text'});
     presetXML.done(function(data){
-      console.log(data);
+      data = splicePhotos(data);
       loadPreset(data);
     });
   };
@@ -107,8 +132,19 @@ function( Flixpress, context, menu ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');      
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
+      if (Flixpress.dev) {
+        console.log(Flixpress.serverLocation + '/templates/presets/template' + getVars().TemplateId + '.js');
+      }
     });
   };
+
+  Flixpress.editor.getCurrentPreset = function () {
+    if (Flixpress.dev) {
+      console.log(jxon);
+      console.log(jxon);
+      console.log(getCurrentPreset()[0]); //weird that it needs the [0]
+    }
+  }
 
 });
