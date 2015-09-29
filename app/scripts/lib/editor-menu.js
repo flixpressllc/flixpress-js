@@ -337,11 +337,14 @@ define([
       });
 
       $menuTopics.on('click','a', function(){
+        // Pause other jwplayers on click
         for (var prop in jwplayers) {
           if (jwplayer(prop).pause !== undefined){
             jwplayer(prop).pause(true);
           }
         }
+        // Pause Youtube videos on click
+        // TODO
       });
 
       $menuScreen.find('.content').append($menuTopics,$detailsArea);
