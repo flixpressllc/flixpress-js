@@ -22,7 +22,8 @@ module.exports = function (grunt) {
   var config = {
     app: 'app',
     dist: 'dist',
-    server: '/Volumes/MediaRobot'
+    // server: '/Volumes/MediaRobot'
+    server: '/Volumes/FlixpressS3/FlixSamples/development_files'
   };
 
   // Define the configuration for all the tasks
@@ -391,6 +392,7 @@ module.exports = function (grunt) {
           dest: '<%= config.server %>/Scripts/flixpress-js/',
           src: [
             '!flixpress{,.min}.js',
+            '!lib/*',
             '**/*',
           ]
         }]
