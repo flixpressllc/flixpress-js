@@ -110,7 +110,9 @@ define([
         }
       });
 
-      $firstLoadComplete.done(function(){console.log('loaded')});
+      $firstLoadComplete.done(function(){
+        // Do any first load functions here
+      });
 
       menuObject.$placeholder.append( $menuLink );
       $detailsArea.append( $newInfoPane );

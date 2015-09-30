@@ -92,9 +92,7 @@ function( Flixpress, context, menu, jxon ) {
     var currentConditions = getCurrentConditions();
     var currentPhotosArray = currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
     var newPhotosArray = preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
-    
-    console.log(currentPhotosArray, newPhotosArray);
-    
+        
     for (var i = currentPhotosArray.length - 1; i >= 0; i--) {
       if (newPhotosArray.indexOf(currentPhotosArray[i]) === -1){
         // Then the new array doesn't contain the old value. Add it.
@@ -102,9 +100,6 @@ function( Flixpress, context, menu, jxon ) {
       }
     };
     
-    console.log(currentPhotosArray, newPhotosArray);
-    console.log(preset);
-
     return preset;
   }
 
