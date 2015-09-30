@@ -2,10 +2,10 @@ define([
 ], function () {
   var Flixpress = {};
   
-  Flixpress.dev = true;
+  Flixpress.mode = 'development';
 
   Flixpress.serverLocation = function () {
-    if (Flixpress.dev === true){
+    if (Flixpress.mode === 'development'){
       return 'https://s3.amazonaws.com/FlixSamples/development_files'; // No ending forward slash
     } else {
       return 'https://flixpress.com';

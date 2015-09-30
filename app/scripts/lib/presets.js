@@ -169,7 +169,7 @@ function( Flixpress, context, menu, jxon ) {
 
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().TemplateId + '.js');
-      if (Flixpress.dev) {
+      if (Flixpress.mode === 'development') {
         console.log(getCurrentConditions('xml'));
       }
     });
