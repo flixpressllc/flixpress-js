@@ -1,7 +1,8 @@
 define([
   "./core",
-  "./editor-menu"
-], function( Flixpress, menu ) { Flixpress.helpMenu = function(){
+  "./editor-menu",
+  "./editor"
+], function( Flixpress, menu ) { Flixpress.editor.helpMenu = function(){
 
   var cssFile = '/help/help-menu.css';
   var jsonFile = '/help/help-json.js';
