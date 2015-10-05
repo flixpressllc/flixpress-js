@@ -91,8 +91,17 @@ function( Flixpress, context, menu, jxon ) {
   var addCurrentPhotosToPreset = function (preset) {
     var currentConditions = getCurrentConditions();
     var currentPhotosArray = currentConditions.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
+    
+    if (preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls === undefined){
+      preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls = {};
+    }
+    if (preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String === undefined){
+      preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String = []
+    }
+
     var newPhotosArray = preset.OrderRequestOfESlidesRndTemplate.RenderedData.UnusedImageUrls.String;
-        
+    
+
     for (var i = currentPhotosArray.length - 1; i >= 0; i--) {
       if (newPhotosArray.indexOf(currentPhotosArray[i]) === -1){
         // Then the new array doesn't contain the old value. Add it.
