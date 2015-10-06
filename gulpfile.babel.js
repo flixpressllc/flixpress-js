@@ -13,9 +13,17 @@ import fs from 'fs';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
-// I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
-// With my version, only the Key and Secret are in the JSON file. I can define the
-// bucket here.
+/* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
+   With my version, only the Key and Secret are in the JSON file. I can define the
+   bucket here.
+
+   The aws.json file ought to look like this:
+
+   {
+  "key": "SOMETHING",
+  "secret": "SOMETHING ELSE"
+   }
+*/
 var aws = JSON.parse(fs.readFileSync('./aws.json'));
 aws.bucket = 'FlixSamples';
 const awsCredentials = aws;
