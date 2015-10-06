@@ -172,4 +172,9 @@ gulp.task('requirejs', () => {
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
     .pipe(gulp.dest('.tmp'))
-})
+});
+
+gulp.task('develop', ['requirejs'], () => {
+
+  gulp.watch('app/**/*.js', ['requirejs']);
+});
