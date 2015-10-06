@@ -38,7 +38,7 @@ const testLintOptions = {
   }
 };
 
-gulp.task('lint', lint('app/scripts/**/*.js'));
+gulp.task('lint', lint('app/**/*.js'));
 gulp.task('lint:test', lint('test/spec/**/*.js', testLintOptions));
 
 gulp.task('html', ['styles'], () => {
@@ -103,7 +103,7 @@ gulp.task('serve', ['styles', 'fonts'], () => {
 
   gulp.watch([
     'app/*.html',
-    'app/scripts/**/*.js',
+    'app/**/*.js',
     'app/images/**/*',
     '.tmp/fonts/**/*'
   ]).on('change', reload);
@@ -164,10 +164,10 @@ gulp.task('default', ['clean'], () => {
 });
 
 gulp.task('requirejs', () => {
-  return gulp.src('app/scripts/lib/flixpress.js')
+  return gulp.src('app/lib/flixpress.js')
     .pipe($.requirejsOptimize({
       optimize: 'none',
-      mainConfigFile: 'app/scripts/lib/config.js'
+      mainConfigFile: 'app/lib/config.js'
     }))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
