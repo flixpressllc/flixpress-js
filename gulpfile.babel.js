@@ -1,12 +1,25 @@
 // generated on 2015-10-05 using generator-gulp-webapp 1.0.3
+
+// node_modules requires:
 import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
 import {stream as wiredep} from 'wiredep';
 
+// NodeJS level requires:
+import fs from 'fs';
+
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
+
+// I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
+// With my version, only the Key and Secret are in the JSON file. I can define the
+// bucket here.
+var aws = JSON.parse(fs.readFileSync('./aws.json'));
+aws.bucket = 'FlixSamples';
+const awsCredentials = aws;
+const awsOptions = {uploadPath: "development_files/Scripts/flixpress-js/"}
 
 gulp.task('styles', () => {
   return gulp.src('app/styles/*.scss')
@@ -174,6 +187,7 @@ gulp.task('requirejs', () => {
     .pipe($.wrap('(function () {<%= contents %>}());'))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
+    .pipe($.s3(awsCredentials, awsOptions))
     .pipe(gulp.dest('.tmp'))
 });
 
