@@ -167,8 +167,11 @@ gulp.task('requirejs', () => {
   return gulp.src('app/lib/flixpress.js')
     .pipe($.requirejsOptimize({
       optimize: 'none',
-      mainConfigFile: 'app/lib/config.js'
+      mainConfigFile: 'app/lib/config.js',
+      name: 'flixpress',
+      insertRequire: ['flixpress']
     }))
+    .pipe($.wrap('(function () {<%= contents %>}());'))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
     .pipe(gulp.dest('.tmp'))
