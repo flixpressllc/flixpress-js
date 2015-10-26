@@ -1,5 +1,7 @@
 define([
-  "./core"
+  "./core",
+  "components/waypoints/lib/noframework.waypoints",
+  "components/waypoints/lib/shortcuts/inview"
   ],
 function( Flixpress ) {
 
