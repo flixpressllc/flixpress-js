@@ -76,9 +76,9 @@ function( Flixpress ) {
       videoURL = videoURL + "?v=" + new Date().valueOf();            
     }
 
-    function createInview (playerId) {
+    function createInview (containerId, playerId) {
       var inview = new Waypoint.Inview({
-        element: $('#'+playerId)[0],
+        element: $('#'+containerId)[0],
         entered: function(){
           jwplayer(playerId).play(true);
         },
@@ -144,7 +144,7 @@ function( Flixpress ) {
 
       // Autoplay on scroll
       if (options.inViewPlay) {
-        createInview(playerId);
+        createInview(divId, playerId);
       }
     };
     
