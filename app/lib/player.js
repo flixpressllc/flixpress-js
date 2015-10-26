@@ -80,10 +80,10 @@ function( Flixpress ) {
       var inview = new Waypoint.Inview({
         element: $('#'+playerId)[0],
         entered: function(){
-          jwplayer(playerId).play();
+          jwplayer(playerId).play(true);
         },
         exited: function(){
-          jwplayer(playerId).pause();
+          jwplayer(playerId).pause(true);
         }
       });
       return inview
