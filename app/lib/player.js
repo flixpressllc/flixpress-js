@@ -23,7 +23,8 @@ function( Flixpress ) {
       placeholderImage: true,
       deepOptions: null,
       replaceDiv: false,
-      noCache: false
+      noCache: false,
+      inViewPlay: false
     };
 
     /*****************************************************/
@@ -73,6 +74,19 @@ function( Flixpress ) {
     // Append some garbage to the URL to prevent caching
     if (options.noCache === true){
       videoURL = videoURL + "?v=" + new Date().valueOf();            
+    }
+
+    function createInview (playerId) {
+      var inview = new Waypoint.Inview({
+        element: $('#'+playerId)[0],
+        entered: function(){
+          jwplayer(playerId).play();
+        },
+        exited: function(){
+          jwplayer(playerId).pause();
+        }
+      });
+      return inview
     }
      
     // These are not abstracted values. These go straight into jwplayer.
@@ -126,7 +140,12 @@ function( Flixpress ) {
             jwplayer().seek(0);
           }
         });
-      }        
+      }
+
+      // Autoplay on scroll
+      if (options.inViewPlay) {
+        createInview(playerId);
+      }
     };
     
     // unfinished: not used above.
