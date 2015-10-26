@@ -3,6 +3,7 @@
 
 define([
   "./core",
+  "./player",
   "./help-menu",
   "./presets"
   ],
