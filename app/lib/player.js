@@ -66,17 +66,18 @@ function( Flixpress ) {
     // If placeholder image is set to true, use the default image.
     options.placeholderImage = (options.placeholderImage === true) ? '/images/video-placeholder.png' : options.placeholderImage;
 
-    // Make sure rendered preview videos are not cached in browser.
-    // (Flixpress now writes over old preview videos)
-    if (videoURL.slice(-6) === "_P.mp4" ) {
-      options.noCache = true;
-    }
+    if (typeof videoURL === 'string'){ // video URL could be null if we are making a slideshow
+      // Make sure rendered preview videos are not cached in browser.
+      // (Flixpress now writes over old preview videos)
+      if (videoURL.slice(-6) === "_P.mp4" ) {
+        options.noCache = true;
+      }
 
-    // Append some garbage to the URL to prevent caching
-    if (options.noCache === true){
-      videoURL = videoURL + "?v=" + new Date().valueOf();            
+      // Append some garbage to the URL to prevent caching
+      if (options.noCache === true){
+        videoURL = videoURL + "?v=" + new Date().valueOf();            
+      }
     }
-
     function createInview (containerId, playerId) {
       var inview = new Waypoint.Inview({
         element: $('#'+containerId)[0],
@@ -201,7 +202,7 @@ function( Flixpress ) {
       return $div;
     }
 
-    // unfinished: not used above.
+    // unfinished: not used above. Maybe unnecessary
     function findPlaceholderImage () {
       var URLPart = videoURL.substr(0, videoURL.lastIndexOf('.')) || videoURL;
       var extensions = ['.png', '.jpg'];
@@ -212,4 +213,5 @@ function( Flixpress ) {
   }
   Flixpress.player = {};
   Flixpress.player.setup = SetupVideoPlayer;
+  window.SetupVideoPlayer = SetupVideoPlayer;
 });
