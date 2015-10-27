@@ -24,7 +24,8 @@ function( Flixpress ) {
       deepOptions: null,
       replaceDiv: false,
       noCache: false,
-      inViewPlay: false
+      inViewPlay: false,
+      overlay: false
     };
 
     /*****************************************************/
@@ -150,8 +151,56 @@ function( Flixpress ) {
       if (options.inViewPlay) {
         createInview(divId, playerId);
       }
+
+      if (options.overlay !== false){
+        // Bind player events
+        var $overlayDiv;
+        jwplayer(playerId).onReady( function(){
+          $overlayDiv = setupOverlay(divId, playerId);
+        });
+        jwplayer(playerId).onPlay( function(){
+          $overlayDiv.hide();
+        });
+        //player.onPause( showOverlay );
+        jwplayer(playerId).onComplete( function(){
+          $overlayDiv.show();
+        });
+      }
     };
-    
+
+    function setupOverlay (containerId, playerId) {
+      var $div = $('<div class="jwPlayerOverlay"></div>');
+      if(typeof options.overlay === 'string') {
+        $div.html(options.overlay);
+      } else {
+        $div.html('<a href="/register.aspx" class="btnRed">Register now</a> to start creating incredible video online!');
+      }
+      $div.html( $div.html() + '<br><br><a href="#" class="watchAgain btnRed" >Watch Again</a>');
+      $div.css({
+        position: 'absolute',
+        margin: '0',
+        padding: '80px 15px 10px',
+        background: 'rgba( 0, 0, 0, .9 )',
+        color: 'white',
+        fontSize: '24px',
+        lineHeight: '27px',
+        border:'1px solid #fff',
+        textAlign: 'center',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'none',
+        zIndex: 1000000
+      });
+      $div.find('a.watchAgain').on('click', function(e){
+        e.preventDefault();
+        jwplayer(playerId).play();
+      });
+      $div.prependTo($('#'+containerId +' .jwmain'));
+      return $div;
+    }
+
     // unfinished: not used above.
     function findPlaceholderImage () {
       var URLPart = videoURL.substr(0, videoURL.lastIndexOf('.')) || videoURL;
