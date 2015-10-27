@@ -8,5 +8,7 @@ define([
   "./presets"
   ],
 function( Flixpress ) {
-  return (window.Flixpress = Flixpress);
+  window.Flixpress = Flixpress;
+  $('body').trigger({type:'flixpressJsLoaded'});
+  return;
 });
