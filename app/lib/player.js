@@ -86,7 +86,11 @@ function( Flixpress ) {
           jwplayer(playerId).pause(true);
         }
       });
-      return inview
+
+      // Remove autoplay feature on video completion.
+      jwplayer(playerId).onComplete(function(something){ inview.destroy(); });
+      // Remove autoplay feature on first user interaction.
+      $('#'+containerId).on('click', function(){ inview.destroy(); });
     }
      
     // These are not abstracted values. These go straight into jwplayer.
