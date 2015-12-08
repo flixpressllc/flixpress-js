@@ -79,14 +79,16 @@ function( Flixpress ) {
       }
     }
     function createInview (containerId, playerId) {
-      var inview = new Waypoint.Inview({
-        element: $('#'+containerId)[0],
-        entered: function(){
-          jwplayer(playerId).play(true);
-        },
-        exited: function(){
-          jwplayer(playerId).pause(true);
-        }
+      jwplayer(playerId).onReady(function(){
+        var inview = new Waypoint.Inview({
+          element: $('#'+containerId)[0],
+          entered: function(){
+            jwplayer(playerId).play(true);
+          },
+          exit: function(){
+            jwplayer(playerId).pause(true);
+          }
+        });        
       });
 
       // Remove autoplay feature on video completion.
