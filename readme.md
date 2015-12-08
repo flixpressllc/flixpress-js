@@ -2,7 +2,7 @@
 
 Houses functionality for Flixpress.com
 
-To use the build tools, be sure to inlcude a file in the root directory (same as this file) that is named `aws.json` which contains your credentials for AWS. It should look like this:
+To use the build tools, be sure to include a file in the root directory (same as this file) that is named `aws.json` which contains your credentials for AWS. It should look like this:
 
 ```json
 {
