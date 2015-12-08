@@ -87,6 +87,9 @@ function( Flixpress ) {
           },
           exit: function(){
             jwplayer(playerId).pause(true);
+          },
+          exited: function(){
+            jwplayer(playerId).pause(true);
           }
         });        
       });
