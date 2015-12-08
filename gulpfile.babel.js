@@ -30,7 +30,7 @@ const awsCredentials = aws;
 const awsOptions = {uploadPath: "development_files/Scripts/flixpress-js/"}
 
 gulp.task('styles', () => {
-  return gulp.src('app/styles/*.scss')
+  return gulp.src('app/styles/*.{scss,sass}')
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.sass.sync({
@@ -41,6 +41,7 @@ gulp.task('styles', () => {
     .pipe($.autoprefixer({browsers: ['last 1 version']}))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/styles'))
+    .pipe($.s3(awsCredentials,{uploadPath: "development_files/Scripts/flixpress-js/styles"}))
     .pipe(reload({stream: true}));
 });
 
@@ -202,4 +203,5 @@ gulp.task('requirejs', () => {
 gulp.task('develop', ['requirejs'], () => {
 
   gulp.watch('app/**/*.js', ['requirejs']);
+  gulp.watch('app/styles/*.{scss,sass}', ['styles']);
 });
