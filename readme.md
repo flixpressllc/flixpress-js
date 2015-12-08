@@ -2,6 +2,12 @@
 
 Houses functionality for Flixpress.com
 
+## Requirements
+
+Flixpress JS assumes that jQuery and jQuery UI (specifically the `effect-slide` module) are present.
+
+## Development
+
 To use the build tools, be sure to include a file in the root directory (same as this file) that is named `aws.json` which contains your credentials for AWS. It should look like this:
 
 ```json
