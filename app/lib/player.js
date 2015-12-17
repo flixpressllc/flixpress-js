@@ -150,7 +150,7 @@ function( Flixpress ) {
       if (options.repeat) {
         jwplayer(playerId).onTime(function (timing){
           if (timing.position > (timing.duration - options.repeatTriggerFromEnd) ){
-            jwplayer().seek(0);
+            jwplayer(playerId).seek(0);
           }
         });
       }
