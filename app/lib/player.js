@@ -19,6 +19,7 @@ function( Flixpress ) {
       aspectRatio: '16:9',
       autoplay: false,
       repeat: false,
+			repeatTriggerFromEnd: 0.3, // seconds from end of video when repeat fires
       playerSkin: '/Video/features/flixsix.xml',
       placeholderImage: true,
       deepOptions: null,
@@ -104,6 +105,8 @@ function( Flixpress ) {
     // For example, passing in `repeat: true` as an option to `SetupVideoPlayer`
     // should not correspond to `repeat: true` here. Jwplayer's repeat function
     // sucks and should be attained in another way.
+		// Incidentally, the repeat function still needs to be used as a fallback,
+		// so I am uncommenting it below as well. But you get the idea.
     var jwDefaults = {
       file: videoURL,
       width: options.width,
@@ -114,7 +117,7 @@ function( Flixpress ) {
       height: options.height,
       //primary: 'flash',
       //title: 'Template Preview',
-      //repeat: true,
+      repeat: options.repeat,
       //stretching: 'exactfit'
     };
 
@@ -147,7 +150,7 @@ function( Flixpress ) {
       // Instead, we'll detect near end and seek to beginning.
       if (options.repeat) {
         jwplayer(playerId).onTime(function (timing){
-          if (timing.position > (timing.duration - 0.3) ){
+          if (timing.position > (timing.duration - options.repeatTriggerFromEnd) ){
             jwplayer().seek(0);
           }
         });
