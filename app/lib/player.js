@@ -143,6 +143,8 @@ function( Flixpress ) {
         $( '#' + divId ).html( '<div id="' + playerId + '"></div>' );
       }
       
+      $( '#' + divId ).addClass('flixpressVideoPlayer');
+      
       playerHandler = jwplayer(playerId).setup(jwOptions);
       
       // The repeat property for jwplayer requests the video on
