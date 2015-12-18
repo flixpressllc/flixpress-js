@@ -183,11 +183,14 @@ function( Flixpress ) {
       var $div = $('<div class="jwPlayerOverlay"></div>');
       if(typeof options.overlay === 'string') {
         $div.html(options.overlay);
+      } else if (typeof options.overlay.html === 'string') {
+        $div.html(options.overlay.html);
       } else {
         $div.html('<a href="/register.aspx" class="btnRed">Register now</a> to start creating incredible video online!');
       }
       $div.html( $div.html() + '<br><br><a href="#" class="watchAgain btnRed" >Watch Again</a>');
-      $div.css({
+      
+      var overlayCss = {
         position: 'absolute',
         margin: '0',
         padding: '80px 15px 10px',
@@ -203,7 +206,12 @@ function( Flixpress ) {
         bottom: 0,
         display: 'none',
         zIndex: 1000000
-      });
+      };
+      if (typeof options.overlay === 'object' && options.overlay.css !== undefined){
+        $.extend(overlayCss, options.overlay.css);
+      }
+      $div.css(overlayCss);
+      
       $div.find('a.watchAgain').on('click', function(e){
         e.preventDefault();
         jwplayer(playerId).play();
