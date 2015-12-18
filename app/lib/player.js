@@ -13,6 +13,7 @@ function( Flixpress ) {
 
     var requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
     var defaultPlaceholderImage = '';
+    var playerHandler;
 
     var defaults = {
       width: '100%',
@@ -142,7 +143,7 @@ function( Flixpress ) {
         $( '#' + divId ).html( '<div id="' + playerId + '"></div>' );
       }
       
-      jwplayer(playerId).setup(jwOptions);
+      playerHandler = jwplayer(playerId).setup(jwOptions);
       
       // The repeat property for jwplayer requests the video on
       // each play. Bad for Amazon S3 $$$ and user experience.
@@ -217,6 +218,7 @@ function( Flixpress ) {
         extensions[i];
       };
     }
+    return playerHandler;
   }
   Flixpress.player = {};
   Flixpress.player.setup = SetupVideoPlayer;
