@@ -11,8 +11,8 @@ function( Flixpress ) {
     /******        Defaults are defined here        ******/
     /*****************************************************/
 
-    requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
-    defaultPlaceholderImage = '';
+    var requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
+    var defaultPlaceholderImage = '';
 
     var defaults = {
       width: '100%',
