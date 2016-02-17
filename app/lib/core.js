@@ -24,5 +24,10 @@ define([
     return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
   }
 
+  Flixpress.devModeOff = function () {
+    Flixpress.mode = 'production';
+    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
+  }
+
   return Flixpress;
 } );
