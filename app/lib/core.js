@@ -8,7 +8,7 @@ define([
     if (Flixpress.mode === 'development'){
       return 'https://s3.amazonaws.com/FlixSamples/development_files'; // No ending forward slash
     } else {
-      return 'https://flixpress.com';
+      return ''; //No ending forward slash
     }
   };
 
