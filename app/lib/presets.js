@@ -174,11 +174,14 @@ function( Flixpress, context, menu, jxon ) {
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().TemplateId + '.js');
       if (Flixpress.mode === 'development') {
-        console.log(getCurrentConditions('xml'));
+        Flixpress.editor.getPresetXML();
       }
     });
   };
 
-  Flixpress.editor.getPresetXML = function () { console.log(getCurrentConditions('xml')); return getCurrentConditions('xml'); }
+  Flixpress.editor.getPresetXML = function () { 
+    console.log(getCurrentConditions('xml'));
+    return getCurrentConditions('xml'); 
+  }
 
 });
