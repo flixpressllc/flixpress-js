@@ -2,19 +2,31 @@ define([
 ], function () {
   var Flixpress = {};
   
-  Flixpress.mode = 'development';
+  // The string below will be replaced during `gulp production`.
+  // The comment marks before the string are essential for that.
+  Flixpress.mode = /**/'development';
 
   Flixpress.serverLocation = function () {
     if (Flixpress.mode === 'development'){
       return 'https://s3.amazonaws.com/FlixSamples/development_files'; // No ending forward slash
     } else {
-      return 'https://flixpress.com';
+      return ''; //No ending forward slash
     }
   };
 
   // Adds the server location if the string starts with a forward slash
   Flixpress.addServerLocation = function (urlString) {
     return (urlString.charAt(0) === '/') ? Flixpress.serverLocation() + urlString : urlString;
+  }
+
+  Flixpress.devModeOn = function () {
+    Flixpress.mode = 'development';
+    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
+  }
+
+  Flixpress.devModeOff = function () {
+    Flixpress.mode = 'production';
+    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
   }
 
   return Flixpress;

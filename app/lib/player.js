@@ -11,20 +11,23 @@ function( Flixpress ) {
     /******        Defaults are defined here        ******/
     /*****************************************************/
 
-    requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
-    defaultPlaceholderImage = '';
+    var requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
+    var defaultPlaceholderImage = '';
+    var playerHandler;
 
     var defaults = {
       width: '100%',
       aspectRatio: '16:9',
       autoplay: false,
       repeat: false,
+			repeatTriggerFromEnd: 0.3, // seconds from end of video when repeat fires
       playerSkin: '/Video/features/flixsix.xml',
       placeholderImage: true,
       deepOptions: null,
       replaceDiv: false,
       noCache: false,
-      inViewPlay: false
+      inViewPlay: false,
+      overlay: false
     };
 
     /*****************************************************/
@@ -65,34 +68,45 @@ function( Flixpress ) {
     // If placeholder image is set to true, use the default image.
     options.placeholderImage = (options.placeholderImage === true) ? '/images/video-placeholder.png' : options.placeholderImage;
 
-    // Make sure rendered preview videos are not cached in browser.
-    // (Flixpress now writes over old preview videos)
-    if (videoURL.slice(-6) === "_P.mp4" ) {
-      options.noCache = true;
-    }
+    if (typeof videoURL === 'string'){ // video URL could be null if we are making a slideshow
+      // Make sure rendered preview videos are not cached in browser.
+      // (Flixpress now writes over old preview videos)
+      if (videoURL.slice(-6) === "_P.mp4" ) {
+        options.noCache = true;
+      }
 
-    // Append some garbage to the URL to prevent caching
-    if (options.noCache === true){
-      videoURL = videoURL + "?v=" + new Date().valueOf();            
+      // Append some garbage to the URL to prevent caching
+      if (options.noCache === true){
+        videoURL = videoURL + "?v=" + new Date().valueOf();            
+      }
     }
-
-    function createInview (playerId) {
-      var inview = new Waypoint.Inview({
-        element: $('#'+playerId)[0],
-        entered: function(){
-          jwplayer(playerId).play();
-        },
-        exited: function(){
-          jwplayer(playerId).pause();
-        }
+    function createInview (containerId, playerId) {
+      jwplayer(playerId).onReady(function(){
+        var inview = new Waypoint.Inview({
+          element: $('#'+containerId)[0],
+          entered: function(){
+            jwplayer(playerId).play(true);
+          },
+          exit: function(){
+            jwplayer(playerId).pause(true);
+          },
+          exited: function(){
+            jwplayer(playerId).pause(true);
+          }
+        });        
+        // Remove autoplay feature on video completion.
+        jwplayer(playerId).onComplete(function(something){ inview.destroy(); });
+        // Remove autoplay feature on first user interaction.
+        $('#'+containerId).on('click', function(){ inview.destroy(); });
       });
-      return inview
     }
      
     // These are not abstracted values. These go straight into jwplayer.
     // For example, passing in `repeat: true` as an option to `SetupVideoPlayer`
     // should not correspond to `repeat: true` here. Jwplayer's repeat function
     // sucks and should be attained in another way.
+		// Incidentally, the repeat function still needs to be used as a fallback,
+		// so I am uncommenting it below as well. But you get the idea.
     var jwDefaults = {
       file: videoURL,
       width: options.width,
@@ -103,7 +117,7 @@ function( Flixpress ) {
       height: options.height,
       //primary: 'flash',
       //title: 'Template Preview',
-      //repeat: true,
+      repeat: options.repeat,
       //stretching: 'exactfit'
     };
 
@@ -129,26 +143,84 @@ function( Flixpress ) {
         $( '#' + divId ).html( '<div id="' + playerId + '"></div>' );
       }
       
-      jwplayer(playerId).setup(jwOptions);
+      $( '#' + divId ).addClass('flixpressVideoPlayer');
+      
+      playerHandler = jwplayer(playerId).setup(jwOptions);
       
       // The repeat property for jwplayer requests the video on
       // each play. Bad for Amazon S3 $$$ and user experience.
       // Instead, we'll detect near end and seek to beginning.
       if (options.repeat) {
         jwplayer(playerId).onTime(function (timing){
-          if (timing.position > (timing.duration - 0.3) ){
-            jwplayer().seek(0);
+          if (timing.position > (timing.duration - options.repeatTriggerFromEnd) ){
+            jwplayer(playerId).seek(0);
           }
         });
       }
 
       // Autoplay on scroll
       if (options.inViewPlay) {
-        createInview(playerId);
+        createInview(divId, playerId);
+      }
+
+      if (options.overlay !== false){
+        // Bind player events
+        var $overlayDiv;
+        jwplayer(playerId).onReady( function(){
+          $overlayDiv = setupOverlay(divId, playerId);
+        });
+        jwplayer(playerId).onPlay( function(){
+          $overlayDiv.hide();
+        });
+        //player.onPause( showOverlay );
+        jwplayer(playerId).onComplete( function(){
+          $overlayDiv.show();
+        });
       }
     };
-    
-    // unfinished: not used above.
+
+    function setupOverlay (containerId, playerId) {
+      var $div = $('<div class="jwPlayerOverlay"></div>');
+      if(typeof options.overlay === 'string') {
+        $div.html(options.overlay);
+      } else if (typeof options.overlay.html === 'string') {
+        $div.html(options.overlay.html);
+      } else {
+        $div.html('<a href="/register.aspx" class="btnRed">Register now</a> to start creating incredible video online!');
+      }
+      $div.html( $div.html() + '<br><br><a href="#" class="watchAgain btnRed" >Watch Again</a>');
+      
+      var overlayCss = {
+        position: 'absolute',
+        margin: '0',
+        padding: '80px 15px 10px',
+        background: 'rgba( 0, 0, 0, .9 )',
+        color: 'white',
+        fontSize: '24px',
+        lineHeight: '27px',
+        border:'1px solid #fff',
+        textAlign: 'center',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'none',
+        zIndex: 1000000
+      };
+      if (typeof options.overlay === 'object' && options.overlay.css !== undefined){
+        $.extend(overlayCss, options.overlay.css);
+      }
+      $div.css(overlayCss);
+      
+      $div.find('a.watchAgain').on('click', function(e){
+        e.preventDefault();
+        jwplayer(playerId).play();
+      });
+      $div.prependTo($('#'+containerId +' .jwmain'));
+      return $div;
+    }
+
+    // unfinished: not used above. Maybe unnecessary
     function findPlaceholderImage () {
       var URLPart = videoURL.substr(0, videoURL.lastIndexOf('.')) || videoURL;
       var extensions = ['.png', '.jpg'];
@@ -156,7 +228,9 @@ function( Flixpress ) {
         extensions[i];
       };
     }
+    return playerHandler;
   }
   Flixpress.player = {};
   Flixpress.player.setup = SetupVideoPlayer;
+  window.SetupVideoPlayer = SetupVideoPlayer;
 });
