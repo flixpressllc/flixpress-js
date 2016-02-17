@@ -2,7 +2,9 @@ define([
 ], function () {
   var Flixpress = {};
   
-  Flixpress.mode = 'development';
+  // The string below will be replaced during `gulp production`.
+  // The comment marks before the string are essential for that.
+  Flixpress.mode = /**/'development';
 
   Flixpress.serverLocation = function () {
     if (Flixpress.mode === 'development'){

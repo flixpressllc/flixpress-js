@@ -6,6 +6,7 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
 import {stream as wiredep} from 'wiredep';
+import rs from 'run-sequence';
 
 // NodeJS level requires:
 import fs from 'fs';
@@ -13,7 +14,7 @@ import fs from 'fs';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 var production = false;
-const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js/';
+const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
    With my version, only the Key and Secret are in the JSON file. I can define the
@@ -29,7 +30,7 @@ const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js/';
 var aws = JSON.parse(fs.readFileSync('./aws.json'));
 aws.bucket = 'FlixSamples';
 const awsCredentials = aws;
-const awsOptions = {uploadPath: "development_files/Scripts/flixpress-js/"}
+const awsOptions = {uploadPath: "development_files/Scripts/flixpress-js"}
 
 gulp.task('styles', () => {
   return gulp.src('app/styles/*.{scss,sass}')
@@ -45,7 +46,7 @@ gulp.task('styles', () => {
     .pipe(gulp.dest('.tmp/styles'))
     .pipe( $.if( production, 
       gulp.dest(productionPath + 'styles/'), 
-      $.s3(awsCredentials,{uploadPath: awsOptions.uploadPath + "styles"}) ) )
+      $.s3(awsCredentials,{uploadPath: awsOptions.uploadPath + "/styles"}) ) )
     .pipe(reload({stream: true}));
 });
 
@@ -197,6 +198,7 @@ gulp.task('requirejs', () => {
       name: 'flixpress',
       insertRequire: ['flixpress']
     }))
+    .pipe($.if(production, $.replace('/**/\'development\'', '\'production\'')))
     .pipe($.wrap('(function () {<%= contents %>}());'))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
@@ -212,9 +214,8 @@ gulp.task('develop', ['requirejs'], () => {
   gulp.watch('app/styles/*.{scss,sass}', ['styles']);
 });
 
-gulp.task('production', ['requirejs', 'styles'], () => {
+gulp.task('production', () => {
   production = true;
 
-  gulp.watch('app/**/*.js', ['requirejs']);
-  gulp.watch('app/styles/*.{scss,sass}', ['styles']);
+  rs('develop');
 });
