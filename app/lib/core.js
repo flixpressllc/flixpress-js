@@ -19,5 +19,10 @@ define([
     return (urlString.charAt(0) === '/') ? Flixpress.serverLocation() + urlString : urlString;
   }
 
+  Flixpress.devModeOn = function () {
+    Flixpress.mode = 'development';
+    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
+  }
+
   return Flixpress;
 } );
