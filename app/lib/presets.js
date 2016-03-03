@@ -74,15 +74,9 @@ function( Flixpress, context, menu, jxon ) {
 
   // gets many of the vars we will be using in SetupRndTemplateFlash
   var getVars = function () {
-    var varString = context().$('object param[name="flashvars"]')[0].value;
-    var varObject = safeQueryStringToJSON( varString );
-
-    // Still need the .swf file. It is in <object data="file.swf?v2">
-    // We need it without the v2 stuff
-    var swfFile = context().$('object')[0].data.split('?')[0];
-
-    varObject.swf = swfFile;
-    return varObject;
+    // See /templates/Slides.aspx on the server to find all the props
+    // I have set in `window.templateFlashvars`
+    return context().templateFlashvars;
   }
 
   /*
@@ -120,21 +114,23 @@ function( Flixpress, context, menu, jxon ) {
     prepareDOM();
     // This function is defined in /Templates/Scripts/SetupRndTemplateFlash.js
     context().SetupRndTemplateFlash(
-      flashvars.swf,
-      replaceDivId,
-      flashvars.Username,
-      flashvars.TemplateId,
-      flashvars.MinutesRemainingInContract,
-      flashvars.MinimumTemplateDuration,
-      "Edit", // Must always be in Edit mode for presets
-      flashvars.isU
+      flashvars.swfLocation,
+      flashvars.divToReplace,
+      flashvars.username,
+      flashvars.templateId,
+      flashvars.minutesRemaining,
+      flashvars.templateMinLength,
+      "Edit", //flashvars.mode must always be Edit for presets
+      flashvars.previewUrl,
+      flashvars.isChargePerOrder,
+      flashvars.templatePrice
     );
   };
 
   // Reloads the presets that were on the page when it
   // first loaded
   var reloadCurrent = function () {
-    if (getVars().Mode === "Add") {
+    if (getVars().mode === "Add") {
       // We cannot reload the previous state if it was in Add mode to begin.
       // Well, we can... but it's pointless.
       return false;
@@ -172,7 +168,7 @@ function( Flixpress, context, menu, jxon ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().TemplateId + '.js');
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().templateId + '.js');
       if (Flixpress.mode === 'development') {
         Flixpress.editor.getPresetXML();
       }
