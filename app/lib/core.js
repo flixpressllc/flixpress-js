@@ -2,6 +2,8 @@ define([
 ], function () {
   var Flixpress = {};
   
+  Flixpress.loaded = $.Deferred();
+  
   // The string below will be replaced during `gulp production`.
   // The comment marks before the string are essential for that.
   Flixpress.mode = /**/'development';
@@ -17,16 +19,6 @@ define([
   // Adds the server location if the string starts with a forward slash
   Flixpress.addServerLocation = function (urlString) {
     return (urlString.charAt(0) === '/') ? Flixpress.serverLocation() + urlString : urlString;
-  }
-
-  Flixpress.devModeOn = function () {
-    Flixpress.mode = 'development';
-    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
-  }
-
-  Flixpress.devModeOff = function () {
-    Flixpress.mode = 'production';
-    return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
   }
 
   return Flixpress;

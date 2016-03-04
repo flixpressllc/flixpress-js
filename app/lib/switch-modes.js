@@ -3,8 +3,10 @@ define([
   ],
 function( Flixpress ) {
   var tasks = {
-    on: [],
-    off: [],
+    beforeOn: [],
+    afterOn: [],
+    beforeOff: [],
+    afterOff: []
   };
   var Switch = {};
   
@@ -18,30 +20,64 @@ function( Flixpress ) {
     }
   }
   
-  Switch.registerOnTask = function (callback) {
-    registerTask(callback, tasks.on);
+  function setAfterTasks () {
+    window.flixpressAfterModeSwitchTasks = {
+      afterOn: tasks.afterOn,
+      afterOff: tasks.afterOff
+    };
+  }
+  function getAfterTasks () {
+    if (window.flixpressAfterModeSwitchTasks !== undefined) {
+      tasks.afterOn = window.flixpressAfterModeSwitchTasks.afterOn;
+      tasks.afterOff = window.flixpressAfterModeSwitchTasks.afterOff;
+    }
+  }
+  
+  function performAfterTasks () {
+    getAfterTasks();
+    if (Flixpress.mode === 'development'){
+      performTasks(tasks.afterOn);
+    } else {
+      performTasks(tasks.afterOff);
+    }
+  }
+  
+  Switch.registerBeforeOnTask = function (callback) {
+    registerTask(callback, tasks.beforeOn);
   };
-  Switch.registerOffTask = function (callback) {
-    registerTask(callback, tasks.off);
+  Switch.registerBeforeOffTask = function (callback) {
+    registerTask(callback, tasks.beforeOff);
   };
-  Switch.registerBothTask = function (callback) {
-    registerTask(callback, tasks.off);
-    registerTask(callback, tasks.on);
+  Switch.registerBeforeBothTask = function (callback) {
+    registerTask(callback, tasks.beforeOff);
+    registerTask(callback, tasks.beforeOn);
   };
   
+  Switch.registerAfterOnTask = function (callback) {
+    registerTask(callback, tasks.afterOn);
+  };
+  Switch.registerAfterOffTask = function (callback) {
+    registerTask(callback, tasks.afterOff);
+  };
+  Switch.registerAfterBothTask = function (callback) {
+    registerTask(callback, tasks.afterOff);
+    registerTask(callback, tasks.afterOn);
+  };
   
   
   Flixpress.devModeOn = function () {
     Flixpress.mode = 'development';
-    performTasks(tasks.on);
+    performTasks(tasks.beforeOn);
     return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
   }
 
   Flixpress.devModeOff = function () {
     Flixpress.mode = 'production';
-    performTasks(tasks.off);
+    performTasks(tasks.beforeOff);
     return $.getScript(Flixpress.addServerLocation('/Scripts/flixpress-js/flixpress.js'));
   }
+  
+  Flixpress.loaded.done(performAfterTasks);
   
   return Switch;
 });
