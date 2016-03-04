@@ -17,8 +17,10 @@ define([
   };
 
   // Adds the server location if the string starts with a forward slash
+  // Returns the string untouched if it doesn't start with a slash, OR if
+  // it starts with two slashes
   Flixpress.addServerLocation = function (urlString) {
-    return (urlString.charAt(0) === '/') ? Flixpress.serverLocation() + urlString : urlString;
+    return ( urlString.charAt(0) === '/' && urlString.charAt(1) !== '/' ) ? Flixpress.serverLocation() + urlString : urlString;
   }
 
   return Flixpress;
