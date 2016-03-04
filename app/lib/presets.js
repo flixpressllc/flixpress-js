@@ -65,7 +65,6 @@ function( Flixpress, context, menu, jxon, switchModes ) {
 
     }
 
-
     if (returnType === 'xml') {
       return jxon.jsToString( currentConditions );
     } else {
@@ -243,7 +242,5 @@ function( Flixpress, context, menu, jxon, switchModes ) {
       Flixpress.editor.flashvars = window.flixpressEditorPresetNeeds;
     }
   });
-
-  window.getPresetValues = getVarValues;
 
 });
