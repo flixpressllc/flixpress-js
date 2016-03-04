@@ -72,11 +72,76 @@ function( Flixpress, context, menu, jxon ) {
     }
   };
 
-  // gets many of the vars we will be using in SetupRndTemplateFlash
-  var getVars = function () {
-    // See /templates/Slides.aspx on the server to find all the props
-    // I have set in `window.templateFlashvars`
-    return context().templateFlashvars;
+  // Returns an array of values (of any individual type)
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarValues = function () {
+    if (Flixpress.editor.flashvars !== undefined) {
+      return Flixpress.editor.flashvars;
+    } else if (context().editorFlashvars !== undefined) {
+      return context().editorFlashvars;
+    } else {
+      return false;
+    }
+  }
+  
+  // Returns an array of strings representing the variable names
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarNames = function () {
+    var funcString = context().SetupRndTemplateFlash.toString();
+    var argNames = funcString.match(/SetupRndTemplateFlash *\((.*?)\)/)[1];
+    argNames = argNames.split(',').map( function(str){ return str.trim(); } );
+    return argNames;
+  }
+  
+  // Returns an array of values (of any individual type)
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarsObject = function () {
+    var result = {};
+    var names = getVarNames();
+    var values = getVarValues();
+    // build the object
+    for (var i = names.length - 1; i >= 0; i--) {
+      result[names[i]] = values[i];
+    }
+  }
+  
+  var getSanitizedVars = function () {
+    var arr = getVarValues();
+    var hasEdit = false;
+    
+    arr = arr.map( function(thing) {
+      if (thing === "Add" || thing === "Edit") {
+        hasEdit = true;
+        return "Edit";
+      }
+      return thing;
+    });
+    
+    if (hasEdit) {
+      return arr;
+    }
+    
+    return false;
+  }
+  
+  var getMode = function () {
+    var values = getVarValues();
+    for (var i = values.length - 1; i >= 0; i--) {
+      if (values[i] === "Add" || values[i] === "Edit") {
+        return values[i];
+      }
+    }
+    return false;
+  }
+
+  var getTemplateId = function () {
+    var names = getVarNames();
+    for (var i = names.length - 1; i >= 0; i--) {
+      if ( names[i].match(/template(_|-)*id/i) !== null ) {
+        return getVarValues()[i];
+      }
+    }
+    return false;
   }
 
   /*
@@ -108,29 +173,18 @@ function( Flixpress, context, menu, jxon ) {
 
   var loadPreset = function (xmlObject) {
     var el = xmlContainerDiv();
-    var flashvars = getVars();
+    var flashvars = getSanitizedVars();
     if (!el) {return false;}
     el.value = jxon.jsToString(xmlObject);
     prepareDOM();
-    // This function is defined in /Templates/Scripts/SetupRndTemplateFlash.js
-    context().SetupRndTemplateFlash(
-      flashvars.swfLocation,
-      flashvars.divToReplace,
-      flashvars.username,
-      flashvars.templateId,
-      flashvars.minutesRemaining,
-      flashvars.templateMinLength,
-      "Edit", //flashvars.mode must always be Edit for presets
-      flashvars.previewUrl,
-      flashvars.isChargePerOrder,
-      flashvars.templatePrice
-    );
+
+    context().SetupRndTemplateFlash.apply(context(), flashvars);
   };
 
   // Reloads the presets that were on the page when it
   // first loaded
   var reloadCurrent = function () {
-    if (getVars().mode === "Add") {
+    if (getMode() === "Add") {
       // We cannot reload the previous state if it was in Add mode to begin.
       // Well, we can... but it's pointless.
       return false;
@@ -154,7 +208,7 @@ function( Flixpress, context, menu, jxon ) {
 
 
   Flixpress.editor.presets = function () {
-
+debugger;
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
@@ -168,7 +222,7 @@ function( Flixpress, context, menu, jxon ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().templateId + '.js');
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getTemplateId() + '.js');
       if (Flixpress.mode === 'development') {
         Flixpress.editor.getPresetXML();
       }
