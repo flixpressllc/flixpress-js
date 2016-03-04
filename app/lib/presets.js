@@ -222,7 +222,7 @@ function( Flixpress, context, menu, jxon, switchModes ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + folderUrl + 'template' + getTemplateId() + '.js');
+      menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
       if (Flixpress.mode === 'development') {
         Flixpress.editor.getPresetXML();
       }
