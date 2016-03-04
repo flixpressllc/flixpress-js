@@ -6,9 +6,10 @@ define([
   "./contexts/editor-window",
   "./editor-menu",
   "components/jxon/index",
+  "./switch-modes",
   "./editor"
   ],
-function( Flixpress, context, menu, jxon ) {
+function( Flixpress, context, menu, jxon, switchModes ) {
 
   jxon.config({
     lowerCaseTags: false
@@ -232,5 +233,16 @@ function( Flixpress, context, menu, jxon ) {
     console.log(getCurrentConditions('xml'));
     return getCurrentConditions('xml'); 
   }
+  
+  switchModes.registerBeforeBothTask( function(){
+    window.flixpressEditorPresetNeeds = getVarValues();
+  });
+  switchModes.registerAfterBothTask( function(){
+    if (window.flixpressEditorPresetNeeds !== undefined) {
+      Flixpress.editor.flashvars = window.flixpressEditorPresetNeeds;
+    }
+  });
+
+  window.getPresetValues = getVarValues;
 
 });
