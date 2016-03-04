@@ -208,7 +208,6 @@ function( Flixpress, context, menu, jxon ) {
 
 
   Flixpress.editor.presets = function () {
-debugger;
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
