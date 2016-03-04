@@ -71,6 +71,7 @@ define([
     var ytplayers = {};
     var jwcount = 0;
     var ytcount = 0;
+    var jsonFileDir = jsonFile.replace(/\/+[^\/]*$/, '');
 
     function addNewHeading ( menuObject ) {
       menuObject.$placeholder
@@ -224,10 +225,10 @@ define([
       var title = '<h1>' + menuObject.name + '</h1>';
       var $videoDiv = $('<div class="video-wrapper"></div>');
       var jwDiv = newJwDiv();
-      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.addServerLocation(menuObject.data.video) );
+      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.smartUrlPrefix(menuObject.data.video, jsonFileDir) );
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
       // if the xml file starts with a slash, add the server location to the beginning.
-      var xmlUrl = Flixpress.addServerLocation(menuObject.data.xml);
+      var xmlUrl = Flixpress.smartUrlPrefix(menuObject.data.xml, jsonFileDir);
 
       $presetButton.on('click', function(e) {
         e.preventDefault();
