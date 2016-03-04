@@ -280,7 +280,7 @@ define([
      * For creating menu items with the following format:
      * 
      * "name": "Any String", (will become the menu name)
-     * "type": "video", (literal)
+     * "type": "html", (literal)
      * "data": "/url/to/file.html" (example: /DonContentPasteboard/pro-overview.html)
      *
      */
