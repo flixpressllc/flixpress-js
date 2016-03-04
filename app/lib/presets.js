@@ -208,7 +208,8 @@ function( Flixpress, context, menu, jxon, switchModes ) {
   };
 
 
-  Flixpress.editor.presets = function () {
+  Flixpress.editor.presets = function (folderUrlOverride) {
+    var folderUrl = folderUrlOverride ? folderUrlOverride : '/templates/presets/';
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
@@ -222,7 +223,7 @@ function( Flixpress, context, menu, jxon, switchModes ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getTemplateId() + '.js');
+      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + folderUrl + 'template' + getTemplateId() + '.js');
       if (Flixpress.mode === 'development') {
         Flixpress.editor.getPresetXML();
       }
