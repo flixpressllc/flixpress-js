@@ -16,7 +16,12 @@ function( Flixpress ) {
   
   function performTasks (bucket) {
     for (var i = bucket.length - 1; i >= 0; i--) {
-      bucket[i]();
+      try {
+        bucket[i]();
+      } catch (e) {
+        console.warn('Couldn\'t perform mode switch task. This is often not a big problem. See below:');
+        console.warn(e);
+      }
     }
   }
   
