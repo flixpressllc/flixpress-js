@@ -198,6 +198,53 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
       return true;      
     }
   };
+  
+  var prettyDisplayXML = function () {
+    var $div = $('#FlixpressJs-XML-PresetInformation');
+    if ($div.length < 1 ) {
+      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close</a><div><pre></pre></div></div>');
+    }
+    
+    $div
+      .css({
+        position: 'absolute',
+        overflow: 'auto',
+        background: '#eee',
+        color: '#222',
+        top: 0, left: 0, right: 0, bottom: 0
+        })
+      .prependTo($('#cboxContent'))
+      .show()
+    .find('.exit')
+      .css('cursor','pointer')
+      .on('click', function(){$div.hide();});
+      
+    $div.find('pre').text(getCurrentConditions('xml'));
+    
+    $(document).bind('cbox_closed', function(){$div.hide()});
+  };
+  
+  var displayXMLButton = function () {
+    var $div = $('#FlixpressJS-DisplayXMLButton');
+    if ($div.length < 1){
+      $div = $('<div id="FlixpressJS-DisplayXMLButton">Get XML</div>');
+    }
+    $div
+      .css({
+        position: 'fixed',
+        left: 24,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', prettyDisplayXML)
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
 
   // Used by Flixpress.editor-menu
   Flixpress.editor.getPresetFile = function(url){
@@ -229,14 +276,13 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
       if (Flixpress.mode === 'development') {
-        Flixpress.editor.getPresetXML();
+        displayXMLButton();
       }
     });
   };
 
   Flixpress.editor.getPresetXML = function () { 
-    console.log(getCurrentConditions('xml'));
-    return getCurrentConditions('xml'); 
+    return getCurrentConditions('xml');
   }
   
   switchModes.registerBeforeBothTask( function(){
