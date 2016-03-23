@@ -210,7 +210,7 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
-gulp.task('develop', ['clean'], () => {
+gulp.task('development', ['clean'], () => {
   let requireCall = production ? 'requirejs' : 'dev-requirejs';
   
   rs([requireCall, 'styles']);
@@ -234,5 +234,5 @@ gulp.task('dev-replace', () => {
 
 gulp.task('production', () => {
   production = true;
-  rs('develop');
+  rs('development');
 });
