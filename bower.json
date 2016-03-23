@@ -5,8 +5,9 @@
   "devDependencies": {
     "almond": "~0.3.1",
     "chai": "~3.3.0",
+    "js-beautify": "~1.6.2",
+    "jxon": "git://github.com/happycollision/jxon.git",
     "mocha": "~2.3.3",
-    "waypoints": "~4.0.0",
-    "jxon": "git://github.com/happycollision/jxon.git"
+    "waypoints": "~4.0.0"
   }
 }

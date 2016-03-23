@@ -13,7 +13,7 @@ import fs from 'fs';
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
-var production = false;
+var production = true;
 const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
@@ -191,14 +191,15 @@ gulp.task('default', ['clean'], () => {
 });
 
 gulp.task('requirejs', () => {
-  return gulp.src('app/lib/flixpress.js')
+  let dir = production ? 'app' : '.tmp';
+  
+  return gulp.src(dir + '/lib/flixpress.js')
     .pipe($.requirejsOptimize({
       optimize: 'none',
-      mainConfigFile: 'app/lib/config.js',
+      mainConfigFile: dir + '/lib/config.js',
       name: 'flixpress',
       insertRequire: ['flixpress']
     }))
-    .pipe($.if(production, $.replace('/**/\'development\'', '\'production\'')))
     .pipe($.wrap('(function () {<%= contents %>}());'))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
@@ -208,14 +209,33 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
-gulp.task('develop', ['requirejs'], () => {
-
-  gulp.watch('app/**/*.js', ['requirejs']);
+gulp.task('kickoff', ['clean'], () => {
+  let requireCall = production ? 'requirejs' : 'dev-requirejs';
+  
+  rs([requireCall, 'styles']);
+  gulp.watch('app/**/*.js', [requireCall]);
   gulp.watch('app/styles/*.{scss,sass}', ['styles']);
+});
+
+gulp.task('dev-requirejs', () => {
+  rs('dev-replace', 'requirejs')
+});
+
+gulp.task('dev-replace', () => {
+  // 1. get the files
+  // 2. replace the contents
+  // 3. put in .tmp
+  let toUncomment = /\/\*d->\s*(.+?)\s*<-d\*\//g;
+  return gulp.src('app/lib/**/*.js')
+    .pipe($.replace(toUncomment, '$1'))
+    .pipe(gulp.dest('.tmp/lib'));
 });
 
 gulp.task('production', () => {
   production = true;
-
-  rs('develop');
+  rs('kickoff');
+});
+gulp.task('development', () => {
+  production = false;
+  rs('kickoff');
 });
