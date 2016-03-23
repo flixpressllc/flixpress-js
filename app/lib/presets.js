@@ -202,25 +202,38 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   var prettyDisplayXML = function () {
     var $div = $('#FlixpressJs-XML-PresetInformation');
     if ($div.length < 1 ) {
-      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close</a><div><pre></pre></div></div>');
+      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close</a><div><textarea></textarea></div></div>');
+    }
+    
+    $('body').css('overflow', 'hidden');
+    var closeDiv = function(){
+      $div.hide();
+      $('body').css('overflow', 'auto');
     }
     
     $div
       .css({
         position: 'absolute',
-        overflow: 'auto',
         background: '#eee',
         color: '#222',
-        top: 0, left: 0, right: 0, bottom: 0
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 100000
         })
-      .prependTo($('#cboxContent'))
-      .show()
-    .find('.exit')
+      .prependTo($('#colorbox'))
+      .show();
+
+    $div.find('textarea')
+      .css({
+        width: '100%',
+        height: '100%',
+        fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
+        })
+      .text(getCurrentConditions('xml'));
+
+    $div.find('.exit')
       .css('cursor','pointer')
-      .on('click', function(){$div.hide();});
-      
-    $div.find('pre').text(getCurrentConditions('xml'));
-    
+      .on('click', closeDiv);
+
     $(document).bind('cbox_closed', function(){$div.hide()});
   };
   
