@@ -202,13 +202,14 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   var prettyDisplayXML = function () {
     var $div = $('#FlixpressJs-XML-PresetInformation');
     if ($div.length < 1 ) {
-      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close</a><div><textarea></textarea></div></div>');
+      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close (or hit <code>esc</code> key)</a><div><textarea></textarea></div></div>');
     }
     
     $('body').css('overflow', 'hidden');
     var closeDiv = function(){
       $div.hide();
       $('body').css('overflow', 'auto');
+      $(document).off('.presets');
     }
     
     $div
@@ -228,13 +229,29 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
         height: '100%',
         fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
         })
-      .text(getCurrentConditions('xml'));
+      .text(getCurrentConditions('xml'))
+      .select();
 
     $div.find('.exit')
-      .css('cursor','pointer')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
       .on('click', closeDiv);
 
-    $(document).bind('cbox_closed', function(){$div.hide()});
+    $(document).on('cbox_closed.presets', function(){$div.hide()});
+    $(document).on('keydown.presets', function(e){
+      if (e.keyCode === 27){
+        closeDiv();
+      }
+    });
   };
   
   var displayXMLButton = function () {
