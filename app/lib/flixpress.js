@@ -3,12 +3,15 @@
 
 define([
   "./core",
+  "./switch-modes",
   "./player",
   "./help-menu",
   "./presets"
   ],
 function( Flixpress ) {
-  window.Flixpress = Flixpress;
-  $('body').trigger({type:'flixpressJsLoaded'});
+  Flixpress.loaded.resolve().then( function(){
+    window.Flixpress = Flixpress;
+    $('body').trigger({type:'flixpressJsLoaded'});
+  });
   return;
 });
