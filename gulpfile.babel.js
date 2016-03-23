@@ -13,7 +13,7 @@ import fs from 'fs';
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
-var production = false;
+var production = true;
 const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
@@ -210,7 +210,7 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
-gulp.task('development', ['clean'], () => {
+gulp.task('kickoff', ['clean'], () => {
   let requireCall = production ? 'requirejs' : 'dev-requirejs';
   
   rs([requireCall, 'styles']);
@@ -234,5 +234,9 @@ gulp.task('dev-replace', () => {
 
 gulp.task('production', () => {
   production = true;
-  rs('development');
+  rs('kickoff');
+});
+gulp.task('development', () => {
+  production = false;
+  rs('kickoff');
 });
