@@ -151,7 +151,9 @@ A set of key/value pairs that configure the player. All settings are optional.
   If a boolean, whether or not to show the default overlay ("Register now", etc). If a string, the HTML to be placed before the "Watch Again" button in the overlay. 
   
 
-## Building Flixpress JS
+# Building Flixpress JS
+
+> No need to understand the rest of this document unless you are helping to develop Flixpress.js
 
 To use the build tools, be sure to include a file in the root directory (same as this file) that is named `aws.json` which contains your credentials for AWS. It should look like this:
 
@@ -165,3 +167,44 @@ To use the build tools, be sure to include a file in the root directory (same as
 :exclamation::exclamation::exclamation: CAUTION: `.gitignore` is setup to ignore the `aws.json` file. If you rename it to something else, Git will pull it in by default with a commit and then syncing to GitHub will __publish your AWS credentials__. Please do not do that.
 
 Beyond that, make sure that you've got [Node.js and NPM](https://nodejs.org/) installed, then clone this repo and run `npm install`.
+
+## Understanding development mode when *building* Flixpress.js
+
+Because some functions that are used in development mode require large additional includes, it is desirable to keep them OUT of the production code used on the website. Due to this need, there are two ways to compile the finished code in Gulp. Unfortunately, that means there is a "development mode" for both the actual *Flixpress.js library* and for *building* Flixpress.js using Gulp.
+
+Building in "production mode" will compile the finished files and drop them onto the development server. Yes. I said that correctly. The development server is where the "production" version of the code goes. This is because that is where the code is staged before being copied onto the production server.
+
+Building in "development mode" will compile the finished files and drop them into our AWS bucket. During the compilation process certain code will be replaced/UNcommented to enable development mode functions.
+
+To build in development mode:
+
+```bash
+gulp development
+```
+
+To build in production mode:
+
+```bash
+gulp production
+```
+
+## Using development only comments
+
+Building in development mode causes certain comments to be uncommented so that they run as javascript.
+
+As of now, there is only one form of commenting: `/*d->`
+
+Rather than explain just infer from the code below.
+
+```javascript
+Flixpress.mode = 'production';
+/*d-> Flixpress.mode = 'development'; <-d*/
+```
+
+becomes
+
+```javascript
+Flixpress.mode = 'production';
+Flixpress.mode = 'development';
+```
+
