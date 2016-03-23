@@ -45,7 +45,7 @@ There will be a separate document describing how to create the json assets neede
 
 #### .presets()
 
-Invokes the presets menu for the current template editor. If no presets are available, the menu will not display. In [development mode][dm], it will also log the current XML information to the console.
+Invokes the presets menu for the current template editor. If no presets are available, the menu will not display. In [development mode][dm], it will also invoke the 'Get XML' button. When clicked, it will display the currently applied preset XML.
 
 There will be a separate document describing how to create the json assets needed for preset creation.
 
@@ -54,7 +54,7 @@ There will be a separate document describing how to create the json assets neede
 
 #### .getPresetXML()
 
-Best used in [development mode][dm]. This method logs the currently applied preset XML to the console *and also* returns that string in case you need to do something special with it in the console.
+Best used in [development mode][dm]. This method returns the currently applied preset XML.
 
 There will be a separate document describing how to create the json assets needed for preset creation.
 
