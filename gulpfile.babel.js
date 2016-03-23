@@ -200,7 +200,6 @@ gulp.task('requirejs', () => {
       name: 'flixpress',
       insertRequire: ['flixpress']
     }))
-    .pipe($.if(production, $.replace('/**/\'development\'', '\'production\'')))
     .pipe($.wrap('(function () {<%= contents %>}());'))
     .pipe($.addSrc.prepend('bower_components/almond/almond.js'))
     .pipe($.concat('flixpress.js'))
