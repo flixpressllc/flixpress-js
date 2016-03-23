@@ -191,10 +191,12 @@ gulp.task('default', ['clean'], () => {
 });
 
 gulp.task('requirejs', () => {
-  return gulp.src('app/lib/flixpress.js')
+  let dir = production ? 'app' : '.tmp';
+  
+  return gulp.src(dir + '/lib/flixpress.js')
     .pipe($.requirejsOptimize({
       optimize: 'none',
-      mainConfigFile: 'app/lib/config.js',
+      mainConfigFile: dir + '/lib/config.js',
       name: 'flixpress',
       insertRequire: ['flixpress']
     }))
@@ -208,14 +210,29 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
-gulp.task('develop', ['requirejs'], () => {
-
-  gulp.watch('app/**/*.js', ['requirejs']);
+gulp.task('develop', ['clean'], () => {
+  let requireCall = production ? 'requirejs' : 'dev-requirejs';
+  
+  rs([requireCall, 'styles']);
+  gulp.watch('app/**/*.js', [requireCall]);
   gulp.watch('app/styles/*.{scss,sass}', ['styles']);
+});
+
+gulp.task('dev-requirejs', () => {
+  rs('dev-replace', 'requirejs')
+});
+
+gulp.task('dev-replace', () => {
+  // 1. get the files
+  // 2. replace the contents
+  // 3. put in .tmp
+  let toUncomment = /\/\*d->\s*(.+?)\s*<-d\*\//g;
+  return gulp.src('app/lib/**/*.js')
+    .pipe($.replace(toUncomment, '$1'))
+    .pipe(gulp.dest('.tmp/lib'));
 });
 
 gulp.task('production', () => {
   production = true;
-
   rs('develop');
 });

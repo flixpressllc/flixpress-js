@@ -7,10 +7,10 @@ define([
   "./editor-menu",
   "components/jxon/index",
   "./switch-modes",
-  "components/js-beautify/js/index",
+  /*d-> "components/js-beautify/js/index", <-d*/
   "./editor"
   ],
-function( Flixpress, context, menu, jxon, switchModes, jsb ) {
+function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   jxon.config({
     lowerCaseTags: false
@@ -68,7 +68,7 @@ function( Flixpress, context, menu, jxon, switchModes, jsb ) {
 
     if (returnType === 'xml') {
       var curXML = jxon.jsToString( currentConditions );
-      if (jsb !== undefined) {
+      if (Flixpress.mode === 'development') {
         curXML = jsb.html(curXML);
       }
       return curXML;
