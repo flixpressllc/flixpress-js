@@ -3,6 +3,24 @@ define([
   "./helper-functions"
 ], function( Flixpress, helper ) { 
 
+  //////// Settings
+  
+  /*
+   * `modalJQSelector` is a string representing the selector
+   * that jQuery uses to select the colorbox where the menu
+   * is populated. It is unlikely this should be changed.
+   */
+  var modalJQSelector = '#colorbox'; 
+
+  //////// Preferences
+
+  var pathToJWSkin = '/Video/features/flixsix.xml'; // no server location. This is separate from Flixpress-js
+  var width = 640; // for video
+  var height = 360; // for video
+  var flashOrHtml = 'flash';
+
+
+
   var registerNewMenu = function (name, cssFile, jsonFile) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -35,23 +53,6 @@ define([
      * NOTE: The JSON file above must be perfectly formatted
      * or the script will fail silently. Use a validator.
      */
-
-    //////// Settings
-    
-    /*
-     * `modalJQSelector` is a string representing the selector
-     * that jQuery uses to select the colorbox where the menu
-     * is populated. It is unlikely this should be changed.
-     */
-    var modalJQSelector = '#colorbox'; 
-
-    //////// Preferences
-
-    var pathToJWSkin = '/Video/features/flixsix.xml'; // no server location. This is separate from Flixpress-js
-    var width = 640; // for video
-    var height = 360; // for video
-    var flashOrHtml = 'flash';
-
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -445,5 +446,17 @@ define([
       // really, just do nothing when a menu doesn't exist
     });
   };
-  return {registerNewMenu: registerNewMenu};
+  
+  var deregisterMenu = function (name) {
+    if (typeof name !== 'string') {
+      return;
+    }
+    $(modalJQSelector).find('#'+name+'-editor-menu-button, #'+name+'-editor-menu-screen').remove();
+    $(document).unbind('open_' + name + '_menu');
+    $(document).unbind('close_' + name + '_menu');
+  };
+  return {
+    registerNewMenu: registerNewMenu,
+    deregisterMenu: deregisterMenu
+  };
 });
