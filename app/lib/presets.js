@@ -13,7 +13,7 @@ define([
 function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   jxon.config({
-    lowerCaseTags: false
+    // no changes necessary in 2.0 branch
   });
 
   var replaceDivId = 'Template_FlashContent_Div';
@@ -181,8 +181,11 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     var flashvars = getSanitizedVars();
     if (!el) {return false;}
     el.value = jxon.jsToString(xmlObject);
-    prepareDOM();
 
+    // Fix for jxon in the v2.0.0 branch adding an errant 'xmlns' property as 'undefined'
+    el.value = el.value.replace('xmlns="undefined" ','');
+    
+    prepareDOM();
     context().SetupRndTemplateFlash.apply(context(), flashvars);
   };
 
