@@ -315,6 +315,10 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   var folderUrl = '/templates/presets/';
   Flixpress.editor.presets = function (folderUrlOverride) {
+    if (Flixpress.mode === 'development') {
+      displayXMLButton();
+      displayPresetResetButton();
+    }
     folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
     //wait for object:
     var $promise = new $.Deferred();
@@ -330,10 +334,6 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
-      if (Flixpress.mode === 'development') {
-        displayXMLButton();
-        displayPresetResetButton();
-      }
     });
   };
 
