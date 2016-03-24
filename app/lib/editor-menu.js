@@ -210,6 +210,20 @@ define([
     function newYtDiv () {
       return name + '-ytnum'+(++ytcount);
     }
+    
+    // You may pass a string to this function. Anything else creates an empty div.
+    // Returns jQuery
+    function createJwDiv (url) {
+      if (typeof url !== 'string' || url.length === 0) {
+        return $('');
+      }
+      
+      var $videoDiv = $('<div class="video-wrapper"></div>');
+      var jwDiv = newJwDiv();
+      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.smartUrlPrefix(url, jsonFileDir) );
+      
+      return $videoDiv.append(jwHtml);
+    }
 
     /*
      * For creating menu items with the following format:
@@ -223,9 +237,6 @@ define([
     function createPresetDetails (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwDiv = newJwDiv();
-      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.smartUrlPrefix(menuObject.data.video, jsonFileDir) );
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
       // if the xml file starts with a slash, add the server location to the beginning.
       var xmlUrl = Flixpress.smartUrlPrefix(menuObject.data.xml, jsonFileDir);
@@ -244,8 +255,7 @@ define([
         }
       });
       
-      $videoDiv.append(jwHtml);
-      $embedHtml.append(title, $videoDiv, description, $presetButton);
+      $embedHtml.append(title, createJwDiv(menuObject.data.video), description, $presetButton);
 
       var addedTopic = addNewTopic(menuObject, $embedHtml );
 
@@ -270,12 +280,7 @@ define([
     function createVideoLink (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data);
-
-      $videoDiv.append(jwHtml);
-      $embedHtml.append(title, $videoDiv);
-
+      $embedHtml.append(title, createJwDiv(menuObject.data));
       addNewTopic(menuObject, $embedHtml );
     }
 
