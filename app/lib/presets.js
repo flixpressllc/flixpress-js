@@ -319,6 +319,8 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
       displayXMLButton();
       displayPresetResetButton();
     }
+    menu.deregisterMenu('presets');
+    
     folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
     //wait for object:
     var $promise = new $.Deferred();
