@@ -276,6 +276,28 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   }
 
+  var displayPresetResetButton = function () {
+    var $div = $('#FlixpressJS-PresetResetButton');
+    $div.remove();
+    $div = $('<div id="FlixpressJS-PresetResetButton">Refresh Presets</div>');
+
+    $div
+      .css({
+        position: 'fixed',
+        left: 224,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', function(){Flixpress.editor.presets();})
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
+
   // Used by Flixpress.editor-menu
   Flixpress.editor.getPresetFile = function(url){
     //get file
@@ -289,8 +311,9 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   };
 
 
+  var folderUrl = '/templates/presets/';
   Flixpress.editor.presets = function (folderUrlOverride) {
-    var folderUrl = folderUrlOverride ? folderUrlOverride : '/templates/presets/';
+    folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
@@ -307,6 +330,7 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
       menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
       if (Flixpress.mode === 'development') {
         displayXMLButton();
+        displayPresetResetButton();
       }
     });
   };
