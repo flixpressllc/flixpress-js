@@ -201,9 +201,8 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   
   var prettyDisplayXML = function () {
     var $div = $('#FlixpressJs-XML-PresetInformation');
-    if ($div.length < 1 ) {
-      $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close (or hit <code>esc</code> key)</a><div><textarea></textarea></div></div>');
-    }
+    $div.remove();
+    $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close (or hit <code>esc</code> key)</a><div><textarea></textarea></div></div>');
     
     $('body').css('overflow', 'hidden');
     var closeDiv = function(){
@@ -256,9 +255,9 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   
   var displayXMLButton = function () {
     var $div = $('#FlixpressJS-DisplayXMLButton');
-    if ($div.length < 1){
-      $div = $('<div id="FlixpressJS-DisplayXMLButton">Get XML</div>');
-    }
+    $div.remove();
+    $div = $('<div id="FlixpressJS-DisplayXMLButton">Get XML</div>');
+    
     $div
       .css({
         position: 'fixed',
