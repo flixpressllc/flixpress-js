@@ -322,6 +322,15 @@ define([
       $jwPromise = $.Deferred().resolve();
     }
 
+    //handle errors (usually in json file formatting)
+    if (Flixpress.mode === 'development'){
+      $( document ).ajaxError(function( event, request, settings, thrownError ) {
+        if (settings.url === jsonFile) {
+          console.warn('Couldn\'t read a JSON file: ' + jsonFile + '. If you expected the '+ name +' menu to load, be sure a JSON file is present at that location and that it is perfectly formatted JSON.');
+        }
+      });
+    }
+
     $.get(jsonFile, function(fetchedData){
       data = fetchedData;
     },'json').done(function(){
@@ -439,11 +448,6 @@ define([
         }, 3);
       });
 
-    }).always(function(){
-      // things to always do...
-    }).fail(function(){
-      // catch failures
-      // really, just do nothing when a menu doesn't exist
     });
   };
   
@@ -455,6 +459,7 @@ define([
     $(document).unbind('open_' + name + '_menu');
     $(document).unbind('close_' + name + '_menu');
   };
+
   return {
     registerNewMenu: registerNewMenu,
     deregisterMenu: deregisterMenu
