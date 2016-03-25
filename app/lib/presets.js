@@ -215,14 +215,18 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   var prettyDisplayXML = function () {
     var $div = $('#FlixpressJs-XML-PresetInformation');
     $div.remove();
-    $div = $('<div id="FlixpressJs-XML-PresetInformation"><a class="exit">close (or hit <code>esc</code> key)</a><div><textarea></textarea></div></div>');
+    $div = $('<div id="FlixpressJs-XML-PresetInformation">\
+      <a class="exit">close (or hit <code>esc</code> key)</a>\
+      <a class="load">load</a>\
+      <div><textarea></textarea></div>\
+      </div>');
     
     $('body').css('overflow', 'hidden');
     var closeDiv = function(){
       $div.hide();
       $('body').css('overflow', 'auto');
       $(document).off('.presets');
-    }
+    };
     
     $div
       .css({
@@ -257,6 +261,24 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
         fontSize: '1.2em'
         })
       .on('click', closeDiv);
+
+    $div.find('.load')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        left: 200,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
+      .on('click', function(){
+        loadPreset($div.find('textarea')[0].value);
+        closeDiv();
+      });
 
     $(document).on('cbox_closed.presets', function(){$div.hide()});
     $(document).on('keydown.presets', function(e){
