@@ -216,8 +216,8 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     var $div = $('#FlixpressJs-XML-PresetInformation');
     $div.remove();
     $div = $('<div id="FlixpressJs-XML-PresetInformation">\
-      <a class="exit">close (or hit <code>esc</code> key)</a>\
-      <a class="load">load</a>\
+      <a class="exit">Close (or hit <code>esc</code> key)</a>\
+      <a class="load">Load text below as preset</a>\
       <div><textarea></textarea></div>\
       </div>');
     
@@ -291,7 +291,7 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   var displayXMLButton = function () {
     var $div = $('#FlixpressJS-DisplayXMLButton');
     $div.remove();
-    $div = $('<div id="FlixpressJS-DisplayXMLButton">Get XML</div>');
+    $div = $('<div id="FlixpressJS-DisplayXMLButton">Get Loaded XML</div>');
     
     $div
       .css({
@@ -318,7 +318,7 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     $div
       .css({
         position: 'fixed',
-        left: 224,
+        left: 170,
         bottom: 24,
         background: '#fff',
         padding: '12px',
