@@ -315,13 +315,21 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   var folderUrl = '/templates/presets/';
   Flixpress.editor.presets = function (folderUrlOverride) {
+    menu.deregisterMenu('presets');
+    folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
+    
+    try {
+      context();
+    } catch (e) {
+      // There must not be an iframe open yet.
+      // We've already updated the folderUrl, so just return.
+      return;
+    }
+
     if (Flixpress.mode === 'development') {
       displayXMLButton();
       displayPresetResetButton();
     }
-    menu.deregisterMenu('presets');
-    
-    folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
