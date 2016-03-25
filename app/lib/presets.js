@@ -15,6 +15,13 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   jxon.config({
     // no changes necessary in 2.0 branch
   });
+  
+  // Monkey patch to fix for a change in JXON at 2.0.0
+  // (the v2.0.0 branch adds an errant 'xmlns' property as 'undefined')
+  jxon.jsToString2 = jxon.jsToString;
+  jxon.jsToString = function (jsObj) {
+    return jxon.jsToString2(jsObj).replace('xmlns="undefined" ','');
+  }
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
@@ -182,8 +189,6 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     if (!el) {return false;}
     el.value = jxon.jsToString(xmlObject);
 
-    // Fix for jxon in the v2.0.0 branch adding an errant 'xmlns' property as 'undefined'
-    el.value = el.value.replace('xmlns="undefined" ','');
     
     prepareDOM();
     context().SetupRndTemplateFlash.apply(context(), flashvars);
