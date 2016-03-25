@@ -183,12 +183,17 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     return preset;
   }
 
+  // Accepts either an XML string or a js object representing the xml
   var loadPreset = function (xmlObject) {
     var el = xmlContainerDiv();
     var flashvars = getSanitizedVars();
     if (!el) {return false;}
-    el.value = jxon.jsToString(xmlObject);
-
+    
+    if (typeof xmlObject === 'string') {
+      el.value = xmlObject;
+    } else {
+      el.value = jxon.jsToString(xmlObject);
+    }
     
     prepareDOM();
     context().SetupRndTemplateFlash.apply(context(), flashvars);
