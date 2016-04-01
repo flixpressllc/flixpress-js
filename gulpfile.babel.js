@@ -194,6 +194,7 @@ gulp.task('requirejs', () => {
   let dir = production ? 'app' : '.tmp';
   
   return gulp.src(dir + '/lib/flixpress.js')
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.requirejsOptimize({
       optimize: 'none',
       mainConfigFile: dir + '/lib/config.js',
