@@ -6,6 +6,7 @@ define([
   "./switch-modes",
   "./player",
   "./help-menu",
+  "./template-data",
   "./presets"
   ],
 function( Flixpress ) {
