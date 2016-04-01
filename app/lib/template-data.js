@@ -166,6 +166,29 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     return newObject;
   }
 
+  var getReactStartingData = function () {
+    var obj = getLoadedXmlAsObject();
+    var result = {
+      orderData: {},
+      availableOptions: {}
+    };
+
+    var topLvlName = getTopLevelXmlName();
+    var givenResolutions = obj[topLvlName].ResolutionOptions.ListItemViewModel;
+
+    // Eventual refactor for arrays of Objects?
+    var resolutions = []
+    for (var i=0; i < givenResolutions.length; i++) {
+      resolutions.push(changePropsInitialCase(givenResolutions[i],'lowerFirst'));
+    }
+    result.availableOptions.resolutions = resolutions;
+
+    // The easy one:
+    result.orderData.isPreview = obj[topLvlName].IsPreview;
+
+    return result;
+  };
+
   var promiseTemplateUIConfigObject = function(){
     var prom = $.getJSON('/templates/Template' + getTemplateId() + '.js');
     prom.done(function(data){
@@ -188,7 +211,8 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     xmlToObject: xmlToObject,
     objectToXml: objectToXml,
     promiseTemplateUIConfigObject: promiseTemplateUIConfigObject,
-    xmlContainerDiv: xmlContainerDiv
+    xmlContainerDiv: xmlContainerDiv,
+    getReactStartingData: getReactStartingData
   };
 
 });
