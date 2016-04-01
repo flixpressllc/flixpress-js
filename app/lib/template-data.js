@@ -134,7 +134,11 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
 
   var getTemplateId = function () {
     return getEditorTemplateSettings().templateId;
-  }
+  };
+  
+  var getTopLevelXmlName = function () {
+    return 'OrderRequestOfTextOnlyRndTemplate';
+  };
   
   function changePropsInitialCase (obj, whichCase) {
     var makeAspVersion = (whichCase === 'UpperFirst') ? true : false ;
