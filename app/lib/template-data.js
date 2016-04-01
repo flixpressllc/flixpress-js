@@ -28,7 +28,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   }
 
   jxon.config({
-    // no changes necessary in 2.0 branch
+    parseValues: true
   });
 
   // Monkey patch to fix for a change in JXON at 2.0.0
