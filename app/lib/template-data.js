@@ -182,6 +182,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
       resolutions.push(changePropsInitialCase(givenResolutions[i],'lowerFirst'));
     }
     result.availableOptions.resolutions = resolutions;
+    result.orderData.resolutionId = resolutions[0].id;
 
     // The easy one:
     result.orderData.isPreview = obj[topLvlName].IsPreview;
