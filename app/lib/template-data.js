@@ -135,6 +135,32 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   var getTemplateId = function () {
     return getEditorTemplateSettings().templateId;
   }
+  
+  function changePropsInitialCase (obj, whichCase) {
+    var makeAspVersion = (whichCase === 'UpperFirst') ? true : false ;
+    var newObject = obj;
+    if (makeAspVersion) {
+      var regex = /[a-z]/;
+    } else {
+      var regex = /[A-z]/;
+    }
+    for (var key in newObject) {
+      if (newObject.hasOwnProperty(key) === false) continue;
+      if (typeof key !== 'string') continue;
+      if (key.charAt(0).match(regex) === null) continue;
+
+      var prop = newObject[key];
+      var newName = '';
+      if (makeAspVersion){
+        newName = key.charAt(0).toUpperCase() + key.slice(1);
+      } else {
+        newName = key.charAt(0).toLowerCase() + key.slice(1);
+      }
+      delete newObject[key];
+      newObject[newName] = prop;
+    }
+    return newObject;
+  }
 
   var promiseTemplateUIConfigObject = function(){
     var prom = $.getJSON('/templates/Template' + getTemplateId() + '.js');
