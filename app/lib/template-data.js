@@ -91,30 +91,43 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     }
   };
 
-  var emptyRenderedDataNode = {
-    RenderedData: {
-      Specs: {
-        $name: "Specs",
-        $val: "",
-        SpCx: {
-          CSp: {
-            $name: "Properties",
-            $val: "CD|Properties|",
-            SpCx: {
-              Sp: [
-                // This is what we need to dynamically add:
-                // {
-                //   $name: "Top Line",
-                //   $val: "Is Working?"
-                // },{
-                //   $name: "Bottom Line",
-                //   $val: ""
-                // }
-              ]
+  var startingPointTextOnly = {
+    OrderRequestOfTextOnlyRndTemplate: {
+      "$xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+      "$xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
+      ResolutionId: 0,
+      RenderedData: {
+        Specs: {
+          $name: "Specs",
+          $val: "",
+          SpCx: {
+            CSp: {
+              $name: "Properties",
+              $val: "CD|Properties|",
+              SpCx: {
+                Sp: [
+                  // This is what we need to dynamically add:
+                  // {
+                  //   $name: "Top Line",
+                  //   $val: "Is Working?"
+                  // },{
+                  //   $name: "Bottom Line",
+                  //   $val: ""
+                  // }
+                ]
+              }
             }
           }
+        },
+        AudioInfo: {
+          Name: null,
+          Length: "0",
+          AudioType: "NoAudio",
+          Id: "0",
+          AudioUrl: null,
         }
-      }
+      },
+      IsPreview: false
     }
   };
 
@@ -205,6 +218,38 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   function objectToXml (object) {
     return '<?xml version="1.0" encoding="utf-16"?>\n' + prettyXml(jxon.jsToString(object));
   }
+  
+  var updateXmlForOrder = function (reactObj) {
+    var promise = $.Deferred();
+    var orderObject = startingPointTextOnly;
+    var topLvlName = getTopLevelXmlName();
+    var finalOrderXml = '';
+
+    // Pick a resolution
+    if (reactObj.resolutionId === undefined || reactObj.ResolutionId === 0) {
+      promise.reject('No ResolutionId was present');
+    }
+    orderObject[topLvlName].ResolutionId = reactObj.resolutionId;
+
+    // Distribute Text Fields
+    if (reactObj.textFields === undefined) {
+      promise.reject('No Text Fields were sent');
+    }
+    for(var key in reactObj.textFields){
+      if (reactObj.textFields.hasOwnProperty(key)){
+        orderObject[topLvlName].RenderedData.Specs.SpCx.CSp.SpCx.Sp.push({
+          $name: key,
+          $val: reactObj.textFields[key].value
+        });
+      }
+    }
+
+    finalOrderXml = objectToXml(orderObject);
+    xmlContainerDiv().value = finalOrderXml;
+    promise.resolve();
+
+    return promise;
+  };
 
   Flixpress.td = {
     getLoadedXmlAsString: getLoadedXmlAsString,
@@ -213,7 +258,8 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     objectToXml: objectToXml,
     promiseTemplateUIConfigObject: promiseTemplateUIConfigObject,
     xmlContainerDiv: xmlContainerDiv,
-    getReactStartingData: getReactStartingData
+    getReactStartingData: getReactStartingData,
+    updateXmlForOrder: updateXmlForOrder
   };
 
 });
