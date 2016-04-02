@@ -244,6 +244,9 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
       }
     }
 
+    //Preview?
+    orderObject[topLvlName].IsPreview = reactObj.isPreview;
+
     finalOrderXml = objectToXml(orderObject);
     xmlContainerDiv().value = finalOrderXml;
     promise.resolve();
