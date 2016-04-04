@@ -215,14 +215,8 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
 
   var getReactStartingData = function () {
     var obj = getLoadedXmlAsObject();
-    var result = {
-      orderData: {},
-      availableOptions: {}
-    };
-
     var topLvlName = getTopLevelXmlName();
-    
-    result.orderData = convertSpecsToReactData(obj[topLvlName]);
+    var result = convertSpecsToReactData(obj[topLvlName]);
 
     var givenResolutions = obj[topLvlName].ResolutionOptions.ListItemViewModel;
     // Eventual refactor for arrays of Objects?
@@ -230,11 +224,11 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     for (var i=0; i < givenResolutions.length; i++) {
       resolutions.push(changePropsInitialCase(givenResolutions[i],'lowerFirst'));
     }
-    result.availableOptions.resolutions = resolutions;
-    result.orderData.resolutionId = resolutions[0].id;
+    result.resolutions = resolutions;
+    result.resolutionId = resolutions[0].id;
 
     // The easy one:
-    result.orderData.isPreview = obj[topLvlName].IsPreview;
+    result.isPreview = obj[topLvlName].IsPreview;
 
     return result;
   };
