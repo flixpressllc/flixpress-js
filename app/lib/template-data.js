@@ -179,6 +179,40 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     return newObject;
   }
 
+  var convertSpecsToReactData = function (xmlObj) {
+    var result = {};
+    if (xmlObj.RenderedData === undefined) {
+      return result;
+    } else {
+      xmlObj = xmlObj.RenderedData;
+    }
+    
+    // Audio Info
+    if (xmlObj.AudioInfo !== undefined) {
+      result.audioInfo = changePropsInitialCase(xmlObj.AudioInfo, 'lowerFirst');
+    }
+    
+    if (xmlObj.Specs !== undefined) {
+      
+      try {
+        // Text fields
+        textFieldsArray = xmlObj.Specs.SpCx.CSp.SpCx.Sp;
+        if (textFieldsArray.length > 0) {
+          result.textFields = {};
+        }
+        var name = '';
+        var value = '';
+        for ( var i = 0; textFieldsArray.length > i; i++ ) {
+          name = textFieldsArray[i].$name;
+          value = textFieldsArray[i].$val;
+          result.textFields[name] = value;
+        }
+      } catch (e) {}
+    }
+    
+    return result;
+  };
+
   var getReactStartingData = function () {
     var obj = getLoadedXmlAsObject();
     var result = {
@@ -187,8 +221,10 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     };
 
     var topLvlName = getTopLevelXmlName();
-    var givenResolutions = obj[topLvlName].ResolutionOptions.ListItemViewModel;
+    
+    result.orderData = convertSpecsToReactData(obj[topLvlName]);
 
+    var givenResolutions = obj[topLvlName].ResolutionOptions.ListItemViewModel;
     // Eventual refactor for arrays of Objects?
     var resolutions = []
     for (var i=0; i < givenResolutions.length; i++) {
