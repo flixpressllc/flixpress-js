@@ -179,6 +179,17 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     return newObject;
   }
 
+  function clone(obj) {
+    var target = {};
+    for (var i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        target[i] = obj[i];
+      }
+    }
+    return target;
+  }
+
+
   var convertSpecsToReactData = function (xmlObj) {
     var result = {};
     if (xmlObj.RenderedData === undefined) {
@@ -191,23 +202,24 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     if (xmlObj.AudioInfo !== undefined) {
       result.audioInfo = changePropsInitialCase(xmlObj.AudioInfo, 'lowerFirst');
     }
-    
+
+    var what = Object.prototype.toString;
     if (xmlObj.Specs !== undefined) {
-      
-      try {
-        // Text fields
-        textFieldsArray = xmlObj.Specs.SpCx.CSp.SpCx.Sp;
-        if (textFieldsArray.length > 0) {
-          result.textFields = {};
-        }
+      result.nameValuePairs = [];
+      if (what.call(xmlObj.Specs.SpCx.CSp) !== '[object Array]'){
+        // Make it into an array for consistency
+        xmlObj.Specs.SpCx.CSp = [clone(xmlObj.Specs.SpCx.CSp)]
+      }
+      for (var i = 0; i < xmlObj.Specs.SpCx.CSp.length; i++) {
+        var currentFieldsArray = xmlObj.Specs.SpCx.CSp[i].SpCx.Sp;
         var name = '';
         var value = '';
-        for ( var i = 0; textFieldsArray.length > i; i++ ) {
-          name = textFieldsArray[i].$name;
-          value = textFieldsArray[i].$val;
-          result.textFields[name] = value;
+        for ( var j = 0; currentFieldsArray.length > j; j++ ) {
+          name = currentFieldsArray[j].$name;
+          value = currentFieldsArray[j].$val;
+          result.nameValuePairs.push({name: name, value: value});
         }
-      } catch (e) {}
+      }
     }
     
     return result;
