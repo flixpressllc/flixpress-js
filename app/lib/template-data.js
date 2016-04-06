@@ -91,7 +91,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     }
   };
 
-  var startingPointTextOnly = {
+  var startingPoint = {
     OrderRequestOfTextOnlyRndTemplate: {
       "$xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
       "$xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
@@ -101,22 +101,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
           $name: "Specs",
           $val: "",
           SpCx: {
-            CSp: {
-              $name: "Properties",
-              $val: "CD|Properties|",
-              SpCx: {
-                Sp: [
-                  // This is what we need to dynamically add:
-                  // {
-                  //   $name: "Top Line",
-                  //   $val: "Is Working?"
-                  // },{
-                  //   $name: "Bottom Line",
-                  //   $val: ""
-                  // }
-                ]
-              }
-            }
+            CSp: []
           }
         },
         AudioInfo: {
@@ -263,7 +248,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   
   var updateXmlForOrder = function (reactObj) {
     var promise = $.Deferred();
-    var orderObject = startingPointTextOnly;
+    var orderObject = startingPoint;
     var topLvlName = getTopLevelXmlName();
     var finalOrderXml = '';
 
@@ -273,17 +258,34 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     }
     orderObject[topLvlName].ResolutionId = reactObj.resolutionId;
 
-    // Distribute Text Fields
-    if (reactObj.textFields === undefined) {
-      promise.reject('No Text Fields were sent');
+    // Distribute Specs
+    if (reactObj.ui === undefined) {
+      promise.reject('No Specs were sent');
     }
-    for(var key in reactObj.textFields){
-      if (reactObj.textFields.hasOwnProperty(key)){
-        orderObject[topLvlName].RenderedData.Specs.SpCx.CSp.SpCx.Sp.push({
-          $name: key,
-          $val: reactObj.textFields[key].value
-        });
+    for (var i = 0; i < reactObj.ui.length; i++) {
+      
+      for (var key in reactObj.ui[i]) {
+        if (reactObj.ui[i].hasOwnProperty(key)){
+          var SpArray = [];
+          
+          for (var j = 0; j < reactObj.ui[i][key].length; j++) {
+             SpArray.push({
+              $name: reactObj.ui[i][key][j].name,
+              $val: reactObj.ui[i][key][j].value
+            });
+          }
+          
+          orderObject[topLvlName].RenderedData.Specs.SpCx.CSp.push({
+            $name: key,
+            $val: 'CD|' + key + '|',
+            SpCx: {
+              Sp: SpArray
+            }
+          });
+
+        }
       }
+      
     }
 
     //Preview?
