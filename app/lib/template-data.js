@@ -297,6 +297,58 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
 
     return promise;
   };
+  
+  var getCatSongs = function (categoryId, username) {
+    var audioUrl = 'https://ws.flixpress.com/AudioWebService.asmx/GetAudio';
+    return $.ajax({
+      url: audioUrl,
+      data: {username: username, categoryId: categoryId, page:1, pageSize: 1000},
+      dataType: 'xml',
+      type: 'GET'
+    });
+    
+  }
+  
+  var getAudioOptions = function (username) {
+    var optionsPromise = $.Deferred();
+    // https://ws.flixpress.com/AudioWebService.asmx/GetAudio?categoryId=2&page=1&pageSize=100&username=bowdo
+    
+    // https://ws.flixpress.com/AudioWebService.asmx/GetCategoryTree
+    
+    var categoryUrl = 'https://ws.flixpress.com/AudioWebService.asmx/GetCategoryTree';
+    
+    function whenAll(arrayOfPromises) {
+      return jQuery.when.apply(jQuery, arrayOfPromises).then(function() {
+        return Array.prototype.slice.call(arguments, 0);
+      });
+    };
+
+    var categories, customAudio;
+    var getAllCats = [];
+    var categoriesObj = {};
+    var getCats = $.ajax({
+      url: categoryUrl,
+      dataType: 'xml',
+      type: 'GET'
+    }).done(function(result){
+      categories = jxon.xmlToJs(result).ArrayOfCategory.Category.SubCategories.Category;
+
+      $.each(categories, function(arrPos, category){
+        var catSongs = getCatSongs(category.Id, username)
+        getAllCats.push(catSongs);
+        catSongs.done(function(result){
+          categoriesObj[category.Name] = {};
+          categoriesObj[category.Name].id = category.id;
+          categoriesObj[category.Name].songs = jxon.xmlToJs(result).ResultSetOfAudio.Records.Audio;
+        });
+      });
+      
+      whenAll(getAllCats).done(function(){
+        optionsPromise.resolve({categories:categoriesObj, customAudio: {}});
+      })
+    });
+    return optionsPromise;
+  };
 
   Flixpress.td = {
     getLoadedXmlAsString: getLoadedXmlAsString,
@@ -306,7 +358,8 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     promiseTemplateUIConfigObject: promiseTemplateUIConfigObject,
     xmlContainerDiv: xmlContainerDiv,
     getReactStartingData: getReactStartingData,
-    updateXmlForOrder: updateXmlForOrder
+    updateXmlForOrder: updateXmlForOrder,
+    getAudioOptions: getAudioOptions
   };
 
 });
