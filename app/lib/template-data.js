@@ -338,7 +338,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
         getAllCats.push(catSongs);
         catSongs.done(function(result){
           categoriesObj[category.Name] = {};
-          categoriesObj[category.Name].id = category.id;
+          categoriesObj[category.Name].id = category.Id;
           categoriesObj[category.Name].songs = jxon.xmlToJs(result).ResultSetOfAudio.Records.Audio;
         });
       });
