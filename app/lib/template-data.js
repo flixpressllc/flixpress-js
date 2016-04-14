@@ -316,6 +316,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     // https://ws.flixpress.com/AudioWebService.asmx/GetCategoryTree
     
     var categoryUrl = 'https://ws.flixpress.com/AudioWebService.asmx/GetCategoryTree';
+    var customUrl = 'https://ws.flixpress.com/CustomAudioWebService.asmx/GetCustomAudio';
     
     function whenAll(arrayOfPromises) {
       return jQuery.when.apply(jQuery, arrayOfPromises).then(function() {
@@ -323,15 +324,18 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
       });
     };
 
-    var categories, customAudio;
-    var getAllCats = [];
     var categoriesObj = {};
+    var customAudioArr = [];
+    var haveAllCats = $.Deferred();
+    var haveAllCustom = $.Deferred();
+    
     var getCats = $.ajax({
       url: categoryUrl,
       dataType: 'xml',
       type: 'GET'
     }).done(function(result){
-      categories = jxon.xmlToJs(result).ArrayOfCategory.Category.SubCategories.Category;
+      var getAllCats = [];
+      var categories = jxon.xmlToJs(result).ArrayOfCategory.Category.SubCategories.Category;
 
       $.each(categories, function(arrPos, category){
         var catSongs = getCatSongs(category.Id, username)
@@ -344,9 +348,27 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
       });
       
       whenAll(getAllCats).done(function(){
-        optionsPromise.resolve({categories:categoriesObj, customAudio: {}});
+        haveAllCats.resolve();
       })
     });
+    
+    var getCustom = $.ajax({
+      url: customUrl,
+      dataType: 'xml',
+      type: 'GET',
+      data: {username: username, page:1, pageSize: 1000}
+    }).done(function (result) {
+      var songs = jxon.xmlToJs(result).ResultSetOfCustomAudio.Records.CustomAudio;
+      for (var i = 0; i < songs.length; i++) {
+        customAudioArr.push(songs[i]);
+      }
+      haveAllCustom.resolve();
+    });
+    
+    $.when(haveAllCats, haveAllCustom).then(function () {
+      optionsPromise.resolve({categories:categoriesObj, customAudio: customAudioArr});
+    });
+    
     return optionsPromise;
   };
 
