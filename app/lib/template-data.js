@@ -211,6 +211,11 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   };
 
   var getReactStartingData = function () {
+    // Hack to get around server side code for now...
+    if($('head').find('meta[content="width=device-width, initial-scale=1.0"]').length < 1) {
+      $('head').append($('<meta name="viewport" content="width=device-width, initial-scale=1.0">'));
+    }
+    // Ok. Onward...
     var obj = getLoadedXmlAsObject();
     var topLvlName = getTopLevelXmlName();
     var result = convertSpecsToReactData(obj[topLvlName]);
