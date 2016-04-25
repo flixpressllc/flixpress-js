@@ -263,6 +263,13 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
     }
     orderObject[topLvlName].ResolutionId = reactObj.resolutionId;
 
+    // copy audio
+    if (reactObj.audioInfo === undefined) {
+      promise.reject('No audioInfo was present');
+    }
+    
+    orderObject[topLvlName].RenderedData.AudioInfo = changePropsInitialCase(reactObj.audioInfo, 'UpperFirst');
+
     // Distribute Specs
     if (reactObj.ui === undefined) {
       promise.reject('No Specs were sent');
