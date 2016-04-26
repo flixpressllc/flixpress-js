@@ -165,13 +165,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   }
 
   function clone(obj) {
-    var target = {};
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        target[i] = obj[i];
-      }
-    }
-    return target;
+    return target = JSON.parse(JSON.stringify(obj));
   }
 
 
@@ -253,7 +247,7 @@ function( Flixpress, frameContext, menu, jxon /*d-> , jsb <-d*/ ) {
   
   var updateXmlForOrder = function (reactObj) {
     var promise = $.Deferred();
-    var orderObject = startingPoint;
+    var orderObject = clone(startingPoint);
     var topLvlName = getTopLevelXmlName();
     var finalOrderXml = '';
 
