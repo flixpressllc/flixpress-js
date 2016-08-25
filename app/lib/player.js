@@ -11,23 +11,21 @@ function( Flixpress ) {
     /******        Defaults are defined here        ******/
     /*****************************************************/
 
-    var requiredScriptURL = 'https://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js';
     var defaultPlaceholderImage = '';
-    var playerHandler;
+    var DomElement;
 
     var defaults = {
       width: '100%',
+      height: 'auto',
       aspectRatio: '16:9',
       autoplay: false,
-      repeat: false,
-			repeatTriggerFromEnd: 0.3, // seconds from end of video when repeat fires
-      playerSkin: '/Video/features/flixsix.xml',
+      repeat: false, // won't work with youtube videos: you'll have to hard code an embed of a playlist instead
       placeholderImage: true,
-      deepOptions: null,
       replaceDiv: false,
       noCache: false,
       inViewPlay: false,
-      overlay: false
+      overlay: false,
+      hideControls: false
     };
 
     /*****************************************************/
@@ -80,155 +78,177 @@ function( Flixpress ) {
         videoURL = videoURL + "?v=" + new Date().valueOf();            
       }
     }
-    function createInview (containerId, playerId) {
-      jwplayer(playerId).onReady(function(){
-        var inview = new Waypoint.Inview({
-          element: $('#'+containerId)[0],
-          entered: function(){
-            jwplayer(playerId).play(true);
-          },
-          exit: function(){
-            jwplayer(playerId).pause(true);
-          },
-          exited: function(){
-            jwplayer(playerId).pause(true);
-          }
-        });        
-        // Remove autoplay feature on video completion.
-        jwplayer(playerId).onComplete(function(something){ inview.destroy(); });
-        // Remove autoplay feature on first user interaction.
-        $('#'+containerId).on('click', function(){ inview.destroy(); });
-      });
-    }
+    // function createInview (containerId, playerId) {
+    //   jwplayer(playerId).onReady(function(){
+    //     var inview = new Waypoint.Inview({
+    //       element: $('#'+containerId)[0],
+    //       entered: function(){
+    //         jwplayer(playerId).play(true);
+    //       },
+    //       exit: function(){
+    //         jwplayer(playerId).pause(true);
+    //       },
+    //       exited: function(){
+    //         jwplayer(playerId).pause(true);
+    //       }
+    //     });        
+    //     // Remove autoplay feature on video completion.
+    //     jwplayer(playerId).onComplete(function(something){ inview.destroy(); });
+    //     // Remove autoplay feature on first user interaction.
+    //     $('#'+containerId).on('click', function(){ inview.destroy(); });
+    //   });
+    // }
      
-    // These are not abstracted values. These go straight into jwplayer.
-    // For example, passing in `repeat: true` as an option to `SetupVideoPlayer`
-    // should not correspond to `repeat: true` here. Jwplayer's repeat function
-    // sucks and should be attained in another way.
-		// Incidentally, the repeat function still needs to be used as a fallback,
-		// so I am uncommenting it below as well. But you get the idea.
-    var jwDefaults = {
-      file: videoURL,
-      width: options.width,
-      aspectratio: options.aspectRatio,
-      autostart: options.autoplay,
-      skin: options.playerSkin,
-      image: options.placeholderImage,
-      height: options.height,
-      //primary: 'flash',
-      //title: 'Template Preview',
-      repeat: options.repeat,
-      //stretching: 'exactfit'
-    };
-
-    jwOptions = $.extend(jwDefaults, options.deepOptions);
-
-    requiredScriptNotLoaded = (window.jwplayer === undefined);
-
-    if ( requiredScriptNotLoaded ) {
-      $.ajaxSetup({cache: true});
-      $.getScript(requiredScriptURL, function(){
-        createPlayer(jwplayer);
-      });
-    } else {
-      createPlayer(jwplayer);
-    }
-
-    function createPlayer (jwplayer){
+    function createHTMLPlayer (){
       var playerId = divId + '-the-video';
+      var $video = $('<video id="' + playerId + '" controls></video>')
+      var videoElement = $video[0];
+      
+      videoElement.src = videoURL;
+      
+      $video.on('click', function (e){
+        if(e.offsetY < ($(this).height() - 40)) {
+          if (this.paused) {this.play();} else {this.pause();}
+        }
+      });
+      
+      videoElement.width = options.width;
+      
+      if (options.repeat) {
+        videoElement.loop = true;
+      }
+      
+      if (options.placeholderImage !== false) {
+        videoElement.poster = options.placeholderImage;
+      }
+      
+      if (options.hideControls) {
+        videoElement.controls = false;
+      }
+      
+      if (options.autoplay) {
+        videoElement.autoplay = true;
+      }
+
+      if (options.replaceDiv) {
+        $video.attr('id', divId);
+        $( '#' + divId).replaceWith( $video )
+      } else {
+        $( '#' + divId ).html( $video );
+      }
+
+      // Adds class to either the container or the actual <video>
+      $( '#' + divId ).addClass('flixpressVideoPlayer');
+
+      // // Autoplay on scroll
+      // if (options.inViewPlay) {
+      //   createInview(divId, playerId);
+      // }
+
+      // if (options.overlay !== false){
+      //   // Bind player events
+      //   var $overlayDiv;
+      //   jwplayer(playerId).onReady( function(){
+      //     $overlayDiv = setupOverlay(divId, playerId);
+      //   });
+      //   jwplayer(playerId).onPlay( function(){
+      //     $overlayDiv.hide();
+      //   });
+      //   //player.onPause( showOverlay );
+      //   jwplayer(playerId).onComplete( function(){
+      //     $overlayDiv.show();
+      //   });
+      // }
+      return videoElement
+    };
+    
+    function createYouTubePlayer () {
+      var playerId = divId + '-the-video';
+      var iframeElement;
+      
+      YouTubeVideoId = videoURL.match(/(embed\/|watch\/|v=|youtu\.be\/)([A-z0-9]+)/)
+      if (YouTubeVideoId == null) { return false }
+      YouTubeVideoId = YouTubeVideoId[2];
+    
+      var optionString = 'rel=0&showinfo=0&autohide=1';
+      
+      if (options.autoplay) {
+        optionString += '&autoplay=1'
+      }
+      
+      if (options.hideControls) {
+        optionString += '&controls=0'
+      }
       
       if (options.replaceDiv) {
         playerId = divId;
+        $( '#' + divId).replaceWith( '<iframe id="' + playerId + '" width="' + options.width + '" height="' + options.height + '" src="https://www.youtube.com/embed/' + YouTubeVideoId + '?' + optionString + '" frameborder="0" allowfullscreen></iframe>' )
       } else {
-        $( '#' + divId ).html( '<div id="' + playerId + '"></div>' );
+        $( '#' + divId ).html( '<iframe id="' + playerId + '" width="' + options.width + '" height="' + options.height + '" src="https://www.youtube.com/embed/' + YouTubeVideoId + '?' + optionString + '" frameborder="0" allowfullscreen></iframe>' );
       }
-      
+      iframeElement = $('#'+playerId)[0];
       $( '#' + divId ).addClass('flixpressVideoPlayer');
       
-      playerHandler = jwplayer(playerId).setup(jwOptions);
-      
-      // The repeat property for jwplayer requests the video on
-      // each play. Bad for Amazon S3 $$$ and user experience.
-      // Instead, we'll detect near end and seek to beginning.
-      if (options.repeat) {
-        jwplayer(playerId).onTime(function (timing){
-          if (timing.position > (timing.duration - options.repeatTriggerFromEnd) ){
-            jwplayer(playerId).seek(0);
-          }
-        });
-      }
-
-      // Autoplay on scroll
-      if (options.inViewPlay) {
-        createInview(divId, playerId);
-      }
-
-      if (options.overlay !== false){
-        // Bind player events
-        var $overlayDiv;
-        jwplayer(playerId).onReady( function(){
-          $overlayDiv = setupOverlay(divId, playerId);
-        });
-        jwplayer(playerId).onPlay( function(){
-          $overlayDiv.hide();
-        });
-        //player.onPause( showOverlay );
-        jwplayer(playerId).onComplete( function(){
-          $overlayDiv.show();
-        });
-      }
-    };
-
-    function setupOverlay (containerId, playerId) {
-      var $div = $('<div class="jwPlayerOverlay"></div>');
-      if(typeof options.overlay === 'string') {
-        $div.html(options.overlay);
-      } else if (typeof options.overlay.html === 'string') {
-        $div.html(options.overlay.html);
-      } else {
-        $div.html('<a href="/register.aspx" class="btnRed">Register now</a> to start creating incredible video online!');
-      }
-      $div.html( $div.html() + '<br><br><a href="#" class="watchAgain btnRed" >Watch Again</a>');
-      
-      var overlayCss = {
-        position: 'absolute',
-        margin: '0',
-        padding: '80px 15px 10px',
-        background: 'rgba( 0, 0, 0, .9 )',
-        color: 'white',
-        fontSize: '24px',
-        lineHeight: '27px',
-        border:'1px solid #fff',
-        textAlign: 'center',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'none',
-        zIndex: 1000000
-      };
-      if (typeof options.overlay === 'object' && options.overlay.css !== undefined){
-        $.extend(overlayCss, options.overlay.css);
-      }
-      $div.css(overlayCss);
-      
-      $div.find('a.watchAgain').on('click', function(e){
-        e.preventDefault();
-        jwplayer(playerId).play();
-      });
-      $div.prependTo($('#'+containerId +' .jwmain'));
-      return $div;
+      return iframeElement;
     }
 
-    // unfinished: not used above. Maybe unnecessary
-    function findPlaceholderImage () {
-      var URLPart = videoURL.substr(0, videoURL.lastIndexOf('.')) || videoURL;
-      var extensions = ['.png', '.jpg'];
-      for (var i = extensions.length - 1; i >= 0; i--) {
-        extensions[i];
-      };
+    // function setupOverlay (containerId, playerId) {
+    //   var $div = $('<div class="jwPlayerOverlay"></div>');
+    //   if(typeof options.overlay === 'string') {
+    //     $div.html(options.overlay);
+    //   } else if (typeof options.overlay.html === 'string') {
+    //     $div.html(options.overlay.html);
+    //   } else {
+    //     $div.html('<a href="/register.aspx" class="btnRed">Register now</a> to start creating incredible video online!');
+    //   }
+    //   $div.html( $div.html() + '<br><br><a href="#" class="watchAgain btnRed" >Watch Again</a>');
+      
+    //   var overlayCss = {
+    //     position: 'absolute',
+    //     margin: '0',
+    //     padding: '80px 15px 10px',
+    //     background: 'rgba( 0, 0, 0, .9 )',
+    //     color: 'white',
+    //     fontSize: '24px',
+    //     lineHeight: '27px',
+    //     border:'1px solid #fff',
+    //     textAlign: 'center',
+    //     top: 0,
+    //     left: 0,
+    //     right: 0,
+    //     bottom: 0,
+    //     display: 'none',
+    //     zIndex: 1000000
+    //   };
+    //   if (typeof options.overlay === 'object' && options.overlay.css !== undefined){
+    //     $.extend(overlayCss, options.overlay.css);
+    //   }
+    //   $div.css(overlayCss);
+      
+    //   $div.find('a.watchAgain').on('click', function(e){
+    //     e.preventDefault();
+    //     jwplayer(playerId).play();
+    //   });
+    //   $div.prependTo($('#'+containerId +' .jwmain'));
+    //   return $div;
+    // }
+
+    // // unfinished: not used above. Maybe unnecessary
+    // function findPlaceholderImage () {
+    //   var URLPart = videoURL.substr(0, videoURL.lastIndexOf('.')) || videoURL;
+    //   var extensions = ['.png', '.jpg'];
+    //   for (var i = extensions.length - 1; i >= 0; i--) {
+    //     extensions[i];
+    //   };
+    // }
+
+    if (videoURL.indexOf('youtube.com') == -1 && videoURL.indexOf('youtu.be') == -1){
+      DomElement = createHTMLPlayer();
+    } else {
+      DomElement = createYouTubePlayer();
     }
-    return playerHandler;
+    
+    return DomElement;
   }
   Flixpress.player = {};
   Flixpress.player.setup = SetupVideoPlayer;

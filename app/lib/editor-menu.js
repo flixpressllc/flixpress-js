@@ -1,6 +1,7 @@
 define([
   "./core",
-  "./helper-functions"
+  "./helper-functions",
+  "./player"
 ], function( Flixpress, helper ) { 
 
   //////// Settings
@@ -14,10 +15,8 @@ define([
 
   //////// Preferences
 
-  var pathToJWSkin = '/Video/features/flixsix.xml'; // no server location. This is separate from Flixpress-js
   var width = 640; // for video
   var height = 360; // for video
-  var flashOrHtml = 'flash';
 
 
 
@@ -68,10 +67,10 @@ define([
     var $menuButton = $('<div id="' + name + '-editor-menu-button" class="editor-menu-button">Show ' + helper.toTitleCase(name) + '</div>');
     var $menuTopics = $('<ul class="editor-menu-menu"></ul>');
     var $detailsArea = $('<div class="editor-menu-info"></div>');
-    var jwplayers = {};
-    var ytplayers = {};
-    var jwcount = 0;
-    var ytcount = 0;
+    var fpPlayers = {};
+    var ytPlayers = {};
+    var fpCount = 0;
+    var ytCount = 0;
     var jsonFileDir = jsonFile.replace(/\/+[^\/]*$/, '');
 
     function addNewHeading ( menuObject ) {
@@ -105,7 +104,7 @@ define([
           $newInfoPane.append($newInfoPane.data('' + name + '-content'));
           $newInfoPane.data('' + name + '-content', 'applied');
           
-          var $playersComplete = jwplayerSetup($newInfoPane);
+          var $playersComplete = fpPlayerSetup($newInfoPane);
           $playersComplete.done(function(){
             $firstLoadComplete.resolve();
           });
@@ -123,36 +122,30 @@ define([
     }
 
     
-    function jwplayerSetup($infoPane){
-      var $jwPlayers = $infoPane.find('.jwplayer-video');
+    function fpPlayerSetup($infoPane){
+      var $fpPlayers = $infoPane.find('.fp-player-video');
 
-      if ($jwPlayers.length < 1) {
+      if ($fpPlayers.length < 1) {
         return $.Deferred().resolve();
       }
 
       var allPromises = [];
 
-      $jwPlayers.each(function(){
+      $fpPlayers.each(function(){
         var $thisDone = $.Deferred();
         allPromises.push($thisDone);
         
         var id = $(this).attr('id');
-        var options = jwplayers[id];
+        var options = fpPlayers[id];
+        var file = options.file;
         
-        $jwPromise.done(function(){
+        Flixpress.player.setup( file, id, options );
+        // jwplayer(id).setup(options).onReady(function(){
+        //   // Play on first load only.
+        //   setTimeout(function(){jwplayer(id).play();}, 1);
+        // });        
+        $thisDone.resolve();
         
-          jwplayer(id).setup(options).onTime(function(timing){
-            // Detect near end of video
-            if (timing.position > (timing.duration - 0.3) ){
-                jwplayer(id).seek(0).pause(true);
-            }
-          }).onReady(function(){
-            $thisDone.resolve();
-            // Play on first load only.
-            setTimeout(function(){jwplayer(id).play();}, 1);
-          });        
-        
-        });
       });
       
       var $allDone = $.Deferred();
@@ -161,19 +154,18 @@ define([
       return $allDone;
     }
 
-    function jwplayerPrepare(divId, videoUrl, options) {
+    function fpPlayerPrepare(divId, videoUrl, options) {
       var defaults = {
         autoplay: false,
         width: width, // via 'settings' at top
         height: height, // 'settings'
-        skin: pathToJWSkin, // 'settings'
         file: videoUrl,
-        primary: flashOrHtml // 'settings'
+        replaceDiv: true
       };
       options = $.extend(defaults, options);
-      jwplayers[divId] = options;
+      fpPlayers[divId] = options;
 
-      return '<div class="jwplayer-video" id="'+divId+'"></div>';
+      return '<div class="fp-player-video" id="'+divId+'"></div>';
     }
 
     /*
@@ -200,30 +192,30 @@ define([
 
       var addedTopic = addNewTopic(menuObject, $(embedHtml) );
       addedTopic.firstLoad.done(function(){
-        ytplayers[ytDiv] = new YT.Player(ytDiv);
+        ytPlayers[ytDiv] = new YT.Player(ytDiv);
       });
     }
 
-    function newJwDiv () {
-      return name + '-jwnum'+(++jwcount);
+    function newFpDiv () {
+      return name + '-fpnum'+(++fpCount);
     }
 
     function newYtDiv () {
-      return name + '-ytnum'+(++ytcount);
+      return name + '-ytnum'+(++ytCount);
     }
     
     // You may pass a string to this function. Anything else creates an empty div.
     // Returns jQuery
-    function createJwDiv (url) {
+    function createFpDiv (url) {
       if (typeof url !== 'string' || url.length === 0) {
         return $('');
       }
       
       var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwDiv = newJwDiv();
-      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.smartUrlPrefix(url, jsonFileDir) );
+      var fpDiv = newFpDiv();
+      var fpHtml = fpPlayerPrepare( fpDiv, Flixpress.smartUrlPrefix(url, jsonFileDir) );
       
-      return $videoDiv.append(jwHtml);
+      return $videoDiv.append(fpHtml);
     }
 
     /*
@@ -256,7 +248,7 @@ define([
         }
       });
       
-      $embedHtml.append(title, createJwDiv(menuObject.data.video), description, $presetButton);
+      $embedHtml.append(title, createFpDiv(menuObject.data.video), description, $presetButton);
 
       var addedTopic = addNewTopic(menuObject, $embedHtml );
 
@@ -281,7 +273,7 @@ define([
     function createVideoLink (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      $embedHtml.append(title, createJwDiv(menuObject.data));
+      $embedHtml.append(title, createFpDiv(menuObject.data));
       addNewTopic(menuObject, $embedHtml );
     }
 
@@ -300,7 +292,7 @@ define([
         $page.find('a[href$=mp4]').replaceWith(function(){
           var title = $(this).html();
           var link = $(this).attr('href');
-          return jwplayerPrepare( newJwDiv(), link, {title: title} );
+          return fpPlayerPrepare( newFpDiv(), link, {title: title} );
         });
         addNewTopic(menuObject, $page);
       }); 
@@ -312,14 +304,6 @@ define([
 
     if (cssFile && $('head link.editor-menus[href="' + cssFile + '"]').length < 1) {
       $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + cssFile + '">'));
-    }
-
-    var $jwPromise;
-    if (window.jwplayer === undefined) {
-      $.ajaxSetup({cache: true});
-      $jwPromise = $.getScript('http://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js');        
-    } else {
-      $jwPromise = $.Deferred().resolve();
     }
 
     //handle errors (usually in json file formatting)
@@ -395,14 +379,9 @@ define([
         var pauseCount = 0;
         function pauseUnderlyingPlayer() {
           var context = $('#cboxWrapper iframe')[0].contentWindow;
-          if ( context.jwplayer === undefined ){
-            // jwplayer is still setting up from initial page load
-            // try a few times to give it some time to setup.
-            if (++pauseCount < 8){
-              setTimeout(pauseUnderlyingPlayer(), 500);
-            }
-          } else {
-            context.jwplayer().pause(true);
+          video = context.document.getElementsByTagName('video')[0];
+          if (video !== undefined) {
+            video.pause();
           }
         }
         
@@ -419,16 +398,16 @@ define([
       });
 
       function pauseAllPlayers () {
-        // Pause other jwplayers
-        for (var prop in jwplayers) {
-          if (jwplayer(prop).pause !== undefined){
-            jwplayer(prop).pause(true);
+        // Pause other fpPlayers
+        for (var prop in fpPlayers) {
+          if ($('#' + prop).pause !== undefined){
+            $('#' + prop).pause();
           }
         }
         // Pause Youtube videos
-        for (var player in ytplayers) {
-          if (ytplayers[player].pauseVideo !== undefined){
-            ytplayers[player].pauseVideo();
+        for (var player in ytPlayers) {
+          if (ytPlayers[player].pauseVideo !== undefined){
+            ytPlayers[player].pauseVideo();
           }
         }
       };
