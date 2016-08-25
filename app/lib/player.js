@@ -54,6 +54,22 @@ function( Flixpress ) {
     
 
 
+    // The first argument for SetupVideoPlayer may be either the file URI as a string,
+    // or it may also be the options object. If it is the options object, it must
+    // contain the `file` or `playlist` keys and the `targetElementId` key.
+    if (typeof videoURL !== 'string' && videoURL !== null) {
+      options = videoURL;
+      videoURL = options.file;
+      divId = options.targetElementId;
+    }
+    
+    // The second argument may be the element id as a string, or may be the options
+    // object. Same idea as above.
+    if (typeof divId !== 'string' && divId !== undefined) {
+      options = divId;
+      divId = options.targetElementId;
+    }
+    
     // The third argument for SetupVideoPlayer may be a string, boolean, or object.
     // If it is an object, it will be eventually merged with the defaults.
     // If it is a string or boolean, the value will be applied to placeholderImage.
@@ -67,11 +83,6 @@ function( Flixpress ) {
     options.placeholderImage = (options.placeholderImage === true) ? '/images/video-placeholder.png' : options.placeholderImage;
 
     if (typeof videoURL === 'string'){ // video URL could be null if we are making a slideshow
-      // Make sure rendered preview videos are not cached in browser.
-      // (Flixpress now writes over old preview videos)
-      if (videoURL.slice(-6) === "_P.mp4" ) {
-        options.noCache = true;
-      }
 
       // Append some garbage to the URL to prevent caching
       if (options.noCache === true){
@@ -159,9 +170,27 @@ function( Flixpress ) {
       //     $overlayDiv.show();
       //   });
       // }
-      return videoElement
+      if (options.playlist !== undefined && options.playlist.items !== undefined) {
+        return createHTMLPlaylist (videoElement);
+      }
+      return videoElement;
     };
     
+    
+    function createHTMLPlaylist (videoElement) {
+      var items = options.playlist.items;
+      videoElement.src = items.shift().file;
+      
+      $(videoElement).on('ended', function () {
+        videoElement.autoplay = true;
+        if (items.length > 0){
+          videoElement.src = items.shift().file;
+        }
+      })
+
+      return videoElement;
+    }
+  
     function createYouTubePlayer () {
       var playerId = divId + '-the-video';
       var iframeElement;
