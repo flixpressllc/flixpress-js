@@ -15,17 +15,19 @@ function( Flixpress ) {
     var DomElement;
 
     var defaults = {
-      width: '100%',
-      height: 'auto',
-      aspectRatio: '16:9',
+      width: '100%',            // Pumps width into the `width` attribute of <video>
+      height: 'auto',           // Pumps height into the `height` attr of <video>
+      aspectRatio: '16:9',      // Does nothing. Probably no longer needed.
       autoplay: false,
-      repeat: false, // won't work with youtube videos: you'll have to hard code an embed of a playlist instead
-      placeholderImage: true,
-      replaceDiv: false,
-      noCache: false,
-      inViewPlay: false,
-      overlay: false,
-      hideControls: false
+      repeat: false,            // Won't work with youtube videos:
+                                // you'll have to hard code an embed of a playlist instead
+      placeholderImage: true,   // Boolean or the path to an image
+      replaceDiv: false,        // Boolean. False nests the video inside the target element
+                                // True replaces the target element
+      noCache: false,           // prevents browser caching with random number where applicable
+      inViewPlay: false,        // currently does nothing
+      overlay: false,           // currently does nothing
+      hideControls: false       // hides controls on <video>, not YouTube
     };
 
     /*****************************************************/
