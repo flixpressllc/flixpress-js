@@ -27,7 +27,8 @@ function( Flixpress ) {
       noCache: false,           // prevents browser caching with random number where applicable
       inViewPlay: false,        // currently does nothing
       overlay: false,           // currently does nothing
-      hideControls: false       // hides controls on <video>, not YouTube
+      hideControls: false,      // hides controls on <video>, not YouTube
+      preload: 'none'           // passes this to the preload attr for HTML players
     };
 
     /*****************************************************/
@@ -131,7 +132,9 @@ function( Flixpress ) {
       $wrapper.append($video);
       videoElement.src = videoURL;
       
-      videoElement.width = options.width;
+      videoElement.width = options.width; // TODO: fix this...
+      
+      videoElement.preload = options.preload;
       
       if (options.repeat) {
         videoElement.loop = true;
