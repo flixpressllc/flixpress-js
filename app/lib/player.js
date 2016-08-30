@@ -114,7 +114,17 @@ function( Flixpress ) {
      
     function createHTMLPlayer (){
       var playerId = divId + '-the-video';
-      var $video = $('<video controls></video>');
+      var $divToUse = $('#' + divId);
+      var $video;
+      
+      if ($divToUse.is('video')){
+        $video = $divToUse;
+      } else if ($divToUse.find('video').length > 0) {
+        $video = $($divToUse.find('video')[0]);
+      } else {
+        $video = $('<video></video>')
+      }
+      
       var $wrapper = $('<div id="' + playerId + '" class="fpjs-video-wrapper click-to-play"></div>')
       var videoElement = $video[0];
       
@@ -133,6 +143,8 @@ function( Flixpress ) {
       
       if (options.hideControls) {
         videoElement.controls = false;
+      } else {
+        videoElement.controls = true;
       }
       
       if (options.autoplay) {
@@ -150,9 +162,9 @@ function( Flixpress ) {
 
       if (options.replaceDiv) {
         $wrapper.attr('id', divId);
-        $( '#' + divId).replaceWith( $wrapper )
+        $divToUse.replaceWith( $wrapper )
       } else {
-        $( '#' + divId ).html( $wrapper );
+        $divToUse.html( $wrapper );
       }
 
       // Adds class to either the container or the actual <video>
