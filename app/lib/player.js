@@ -114,16 +114,12 @@ function( Flixpress ) {
      
     function createHTMLPlayer (){
       var playerId = divId + '-the-video';
-      var $video = $('<video id="' + playerId + '" controls></video>')
+      var $video = $('<video controls></video>');
+      var $wrapper = $('<div id="' + playerId + '" class="fpjs-video-wrapper click-to-play"></div>')
       var videoElement = $video[0];
       
+      $wrapper.append($video);
       videoElement.src = videoURL;
-      
-      $video.on('click', function (e){
-        if(e.offsetY < ($(this).height() - 40)) {
-          if (this.paused) {this.play();} else {this.pause();}
-        }
-      });
       
       videoElement.width = options.width;
       
@@ -141,13 +137,22 @@ function( Flixpress ) {
       
       if (options.autoplay) {
         videoElement.autoplay = true;
+        $wrapper.removeClass('click-to-play');
+      } else {
+        $wrapper.on('click', function (e){
+          if($(this).hasClass('click-to-play')) {
+            if (videoElement.paused) {videoElement.play();}
+            $wrapper.removeClass('click-to-play');
+            $wrapper.off('click');
+          }
+        });
       }
 
       if (options.replaceDiv) {
-        $video.attr('id', divId);
-        $( '#' + divId).replaceWith( $video )
+        $wrapper.attr('id', divId);
+        $( '#' + divId).replaceWith( $wrapper )
       } else {
-        $( '#' + divId ).html( $video );
+        $( '#' + divId ).html( $wrapper );
       }
 
       // Adds class to either the container or the actual <video>
