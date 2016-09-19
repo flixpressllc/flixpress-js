@@ -7,7 +7,8 @@ define([
   "./player",
   "./help-menu",
   "./template-data",
-  "./presets"
+  "./presets",
+  "./editor/addAudioButton"
   ],
 function( Flixpress ) {
   Flixpress.loaded.resolve().then( function(){
