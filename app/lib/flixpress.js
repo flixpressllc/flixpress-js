@@ -8,7 +8,7 @@ define([
   "./help-menu",
   "./template-data",
   "./presets",
-  "./editor/addAudioButton"
+  "./editor/addUploadButtons"
   ],
 function( Flixpress ) {
   Flixpress.loaded.resolve().then( function(){
