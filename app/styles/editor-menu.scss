@@ -128,3 +128,51 @@
 .editor-menu-info .info-pane-item.active {
   left: 0;
 }
+
+/* 
+  Quadrants...
+  Here, we are defining some new css for better menu button placement than we use above. The above will evetually be rewritten to be non-redundant
+ */
+
+.menu-button-quadrant {
+  $button-margin: 8px;
+  
+  position: absolute;
+  height: auto;
+  padding: $button-margin;
+  z-index: 10000;
+  
+  .editor-menu-button {
+    position: relative;
+    margin: 0;
+  }
+    
+  &#top-left-menu-quadrant {
+    bottom: 100%;
+    left: 0;
+    .editor-menu-button {
+      margin-right: $button-margin;
+    }
+  }
+  &#top-right-menu-quadrant {
+    bottom: 100%;
+    right: 0;
+    .editor-menu-button {
+      margin-left: $button-margin;
+    }
+  }
+  &#bottom-left-menu-quadrant {
+    top: 100%;
+    left: 0;
+    .editor-menu-button {
+      margin-right: $button-margin;
+    }
+  }
+  &#bottom-right-menu-quadrant {
+    top: 100%;
+    right: 0;
+    .editor-menu-button {
+      margin-left: $button-margin;
+    }
+  }
+}
