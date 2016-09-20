@@ -375,20 +375,10 @@ define([
       });
 
       $(document).bind('open_' + name + '_menu', function(event){
-        // function to pause the template preview video
-        var pauseCount = 0;
-        function pauseUnderlyingPlayer() {
-          var context = $('#cboxWrapper iframe')[0].contentWindow;
-          video = context.document.getElementsByTagName('video')[0];
-          if (video !== undefined) {
-            video.pause();
-          }
-        }
-        
         $menuButton.addClass('active').html('Hide ' + helper.toTitleCase(name) );
         $menuScreen.addClass('active');
 
-        pauseUnderlyingPlayer();
+        helper.pausePlayerInFrame($('.cboxIframe')[0]);
       });
       
       $(document).bind('close_' + name + '_menu', function(){

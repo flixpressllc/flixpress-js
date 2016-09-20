@@ -11,6 +11,14 @@ define([
     
     slugify: function (str) {
       return str.replace(/\s*/g, '-');
+    },
+    
+    pausePlayerInFrame: function (frame) {
+      var context = frame.contentWindow;
+      video = context.document.getElementsByTagName('video')[0];
+      if (video !== undefined) {
+        video.pause();
+      }
     }
 
   };
