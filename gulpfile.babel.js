@@ -45,7 +45,7 @@ gulp.task('styles', () => {
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/styles'))
     .pipe( $.if( production, 
-      gulp.dest(productionPath + 'styles/'), 
+      gulp.dest(productionPath + '/styles'), 
       $.s3(awsCredentials,{uploadPath: awsOptions.uploadPath + "/styles"}) ) )
     .pipe(reload({stream: true}));
 });
