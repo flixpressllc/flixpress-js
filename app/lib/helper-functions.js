@@ -10,7 +10,7 @@ define([
     },
     
     slugify: function (str) {
-      return str.replace(/\s*/g, '-');
+      return str.replace(/\s+/g, '-');
     },
     
     pausePlayerInFrame: function (frame) {
