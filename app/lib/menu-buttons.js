@@ -56,25 +56,29 @@ define([
     var $button = $('<div id="' + s.nameSlug + '-editor-menu-button" class="editor-menu-button inactive">' + s.inactiveText + '</div>');
     
     function activateThisButton (e) {
-      s.openUrl(); // won't fire if doesn't exist
-      s.onActivate(e);
-      
-      if (s.isStateless === false) {
-        $button.removeClass('inactive')
-        $button.addClass('active')
+      if ($button.hasClass('inactive')){
+        s.openUrl(); // won't fire if doesn't exist
+        s.onActivate(e);
         
-        if (s.activeText) {
-          $button.text(s.activeText);
+        if (s.isStateless === false) {
+          $button.removeClass('inactive')
+          $button.addClass('active')
+          
+          if (s.activeText) {
+            $button.text(s.activeText);
+          }
         }
       }
     }
     
     function deactivateThisButton (e) {
-      s.closeUrl(); // won't fire if doesn't exist
-      s.onDeactivate(e);
-      $button.removeClass('active')
-      $button.addClass('inactive')
-      $button.text(s.inactiveText)
+      if ($button.hasClass('active')){
+        s.closeUrl(); // won't fire if doesn't exist
+        s.onDeactivate(e);
+        $button.removeClass('active')
+        $button.addClass('inactive')
+        $button.text(s.inactiveText)
+      }
     }
     
     function settings (options) {
@@ -125,6 +129,7 @@ define([
         $iframe = $(`<div class="button-iframe-wrapper"><iframe src="${url}"></iframe></div>`);
       }
       $iframe.appendTo($(modalJQSelector));
+      helper.pausePlayerInFrame($('.cboxIframe')[0])
     }
     
     function closeUrl () {
@@ -140,7 +145,19 @@ define([
     });
     
     $(document).bind( 'deactivate_menu_buttons', deactivateThisButton );
-    
+    $(document).bind('click.offMenu', function(event){
+      var $clicked = $(event.target)
+      if (
+        // Click was outside the modal box
+        !$clicked.closest(modalJQSelector).length ||
+        // Click was on a different menu-button 
+        ( $clicked.hasClass('editor-menu-button') && $clicked.attr('id') !== s.nameSlug + '-editor-menu-button')
+      ) {
+        // Close this menu
+        deactivateThisButton();
+      }
+    });
+
     $button.deactivateButton = deactivateThisButton;
     $button.activateButton = deactivateThisButton;
     
