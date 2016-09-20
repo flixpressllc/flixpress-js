@@ -53,7 +53,7 @@ define([
       return false;
     }
 
-    var $button = $('<div id="' + helper.slugify(s.name) + '-editor-menu-button" class="editor-menu-button inactive">' + s.inactiveText + '</div>');
+    var $button = $('<div id="' + s.nameSlug + '-editor-menu-button" class="editor-menu-button inactive">' + s.inactiveText + '</div>');
     
     function activateThisButton (e) {
       s.openUrl(); // won't fire if doesn't exist
@@ -86,6 +86,8 @@ define([
         console.error(`The ${s.name} button cannot be registered without an \`onActivate\` function or a url to display.`);
         return false;
       }
+      
+      s.nameSlug = helper.slugify(s.name);
       
       // Stateless?
       if (s.onDeactivate === undefined && s.url === undefined){
