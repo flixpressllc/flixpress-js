@@ -122,10 +122,9 @@ define([
     
     function openUrl (url) {
       if ($iframe === null) {
-        $iframe = $(`<iframe src="${url}"></iframe>`);
-        $iframe.css({position: 'absolute', height: '100%', width: '100%', zIndex: 10000, top:0,left:0});
+        $iframe = $(`<div class="button-iframe-wrapper"><iframe src="${url}"></iframe></div>`);
       }
-      $iframe.appendTo($(modalJQSelector).find('#cboxWrapper'));
+      $iframe.appendTo($(modalJQSelector));
     }
     
     function closeUrl () {

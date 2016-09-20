@@ -176,3 +176,17 @@
     }
   }
 }
+
+/* 
+  Button click iframes
+ */
+ 
+.button-iframe-wrapper {
+  @extend .editor-menu-screen;
+  display: block;
+  
+  iframe {
+    width: 100%;
+    height: 100%;
+  }
+}
