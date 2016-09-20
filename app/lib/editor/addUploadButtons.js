@@ -24,15 +24,4 @@ function( Flixpress, button ) {
     });
   }
   Flixpress.editor.addVideoButton = addVideoButton;
-  
-  function addImagesButton () {
-    button.registerMenuButton({
-      quadrant: 'topRight',
-      url: '//upload.flixpress.com/images',
-      name: 'add-images',
-      inactiveText: 'Add Images',
-      activeText: 'Close Images'
-    });
-  }
-  Flixpress.editor.addImagesButton = addImagesButton;
 });
