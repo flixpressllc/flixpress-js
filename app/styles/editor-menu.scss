@@ -183,8 +183,21 @@
  */
  
 .button-iframe-wrapper {
+  $cbox-inner-padding: 8px; // That grey border around the colorbox...
+  
   @extend .editor-menu-screen;
   display: block;
+  &:before {
+    content: '';
+    display: block;
+    top: $cbox-inner-padding;
+    bottom: $cbox-inner-padding;
+    left: $cbox-inner-padding;
+    right: $cbox-inner-padding;
+    position: absolute;
+    z-index: -1;
+    background: #fff url('/Images/ajax-loader.gif') center no-repeat;
+  }
   
   iframe {
     width: 100%;
