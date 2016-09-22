@@ -160,6 +160,7 @@ define([
 
     $button.deactivateButton = deactivateThisButton;
     $button.activateButton = deactivateThisButton;
+    $button.data('name', s.name);
     
     quadrants[s.quadrant].append($button);
     registeredButtons[s.quadrant].push($button);
@@ -190,12 +191,33 @@ define([
       $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + cssFile + '">'));
     }
   }
+  
+  function deactivateButtonByName (name) {
+    $.each(registeredButtons, function (i, quadrant){
+      $.each(quadrant, function (i, $button){
+        if ($button.data('name') === name) {
+          $button.deactivateButton();
+        }
+      });
+    });
+  }
+
+  function activateButtonByName (name) {
+    $.each(registeredButtons, function (i, quadrant){
+      $.each(quadrant, function (i, $button){
+        if ($button.data('name') === name) {
+          $button.activateButton();
+        }
+      });
+    });
+  }
 
   $(document).bind( 'cbox_closed', function () {
     killAllButtons();
   });
   
   Flixpress.editor.killAllMenuButtons = killAllButtons;
+  Flixpress.editor.deactivateButtonByName = deactivateButtonByName;
   
   return {
     registerMenuButton: registerMenuButton
