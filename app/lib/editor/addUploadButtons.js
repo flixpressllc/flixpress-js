@@ -14,10 +14,11 @@ function( Flixpress, button ) {
     audioUrl = '//upload.flixpress.com/Audio?d=' + currentHost;
     videoUrl = '//upload.flixpress.com/Video?d=' + currentHost;
   }
-  function addAudioButton () {
+  function addAudioButton (userToken) {
+    var url = audioUrl + '&uid=' + userToken;
     var theButton = button.registerMenuButton({
       quadrant: 'topRight',
-      url: audioUrl,
+      url: url,
       name: 'add-audio',
       inactiveText: 'Add Audio',
       activeText: 'Close Audio',
@@ -27,10 +28,11 @@ function( Flixpress, button ) {
     
   }
   
-  function addVideoButton () {
+  function addVideoButton (userToken) {
+    var url = videoUrl + '&uid=' + userToken;
     var theButton = button.registerMenuButton({
       quadrant: 'topRight',
-      url: videoUrl,
+      url: url,
       name: 'add-video',
       inactiveText: 'Add Video',
       activeText: 'Close Video',
