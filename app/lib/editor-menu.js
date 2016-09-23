@@ -1,8 +1,9 @@
 define([
   "./core",
   "./helper-functions",
+  "./menu-buttons",
   "./player"
-], function( Flixpress, helper ) { 
+], function( Flixpress, helper, button ) { 
 
   //////// Settings
   
@@ -20,7 +21,7 @@ define([
 
 
 
-  var registerNewMenu = function (name, cssFile, jsonFile) {
+  var registerNewMenu = function (name, cssFile, jsonFile, buttonQuadrant) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -64,7 +65,6 @@ define([
     // Other Local Vars
     var data;
     var $menuScreen = $('<div id="' + name + '-editor-menu-screen" class="editor-menu-screen"><div class="content"></div></div>');
-    var $menuButton = $('<div id="' + name + '-editor-menu-button" class="editor-menu-button">Show ' + helper.toTitleCase(name) + '</div>');
     var $menuTopics = $('<ul class="editor-menu-menu"></ul>');
     var $detailsArea = $('<div class="editor-menu-info"></div>');
     var fpPlayers = {};
@@ -244,7 +244,7 @@ define([
           // user interaction (per the 'click' above), so it should work just fine.
           Flixpress.editor.getPresetFile(xmlUrl);
           
-          $(this).trigger('close_' + name + '_menu');          
+          $(document).trigger('close_' + name + '_menu');          
         }
       });
       
@@ -345,44 +345,19 @@ define([
         }
       });
 
-      $menuButton.bind('click', function(){
-        if ($(this).hasClass('active')){
-          $(this).trigger('close_' + name + '_menu');
-        } else {
-          $(this).trigger('open_' + name + '_menu');
-        }
-      });
-
       $(document).bind('cbox_closed', function(){
         $menuScreen.remove();
-        $menuButton.remove();
         $(document).unbind('open_' + name + '_menu');
         $(document).unbind('close_' + name + '_menu');
-        $(document).unbind('click.offMenu');
-      });
-
-      $(document).bind('click.offMenu', function(event){
-        var $clicked = $(event.target)
-        if (
-          // Click was outside the modal box
-          !$clicked.closest(modalJQSelector).length ||
-          // Click was on a different menu-button 
-          ( $clicked.hasClass('editor-menu-button') && $clicked.attr('id') !== name + '-editor-menu-button')
-        ) {
-          // Close this menu
-          $(this).trigger('close_' + name + '_menu');
-        }
       });
 
       $(document).bind('open_' + name + '_menu', function(event){
-        $menuButton.addClass('active').html('Hide ' + helper.toTitleCase(name) );
         $menuScreen.addClass('active');
 
         helper.pausePlayerInFrame($('.cboxIframe')[0]);
       });
       
       $(document).bind('close_' + name + '_menu', function(){
-        $menuButton.removeClass('active').html('Show ' + helper.toTitleCase(name) );
         $menuScreen.removeClass('active');
         pauseAllPlayers();
       });
@@ -408,8 +383,17 @@ define([
 
       $menuScreen.find('.content').append($menuTopics,$detailsArea);
       $(modalJQSelector).find('#'+name+'-editor-menu-button, #'+name+'-editor-menu-screen').remove();
-      $(modalJQSelector).append($menuButton, $menuScreen);
+      $(modalJQSelector).append($menuScreen);
 
+      button.registerMenuButton({
+        quadrant: buttonQuadrant || 'topRight',
+        name: name,
+        inactiveText: 'Show ' + helper.toTitleCase(name),
+        activeText: 'Hide ' + helper.toTitleCase(name),
+        onActivate: function(){ $(document).trigger('open_' + name + '_menu'); },
+        onDeactivate: function(){ $(document).trigger('close_' + name + '_menu'); }
+      });
+      
       // Hack to get around colorbox setting overflow to hidden on all resizes
       $(window).bind('resize', function(){
         setTimeout(function(){
@@ -424,7 +408,8 @@ define([
     if (typeof name !== 'string') {
       return;
     }
-    $(modalJQSelector).find('#'+name+'-editor-menu-button, #'+name+'-editor-menu-screen').remove();
+    $(modalJQSelector).find('#'+name+'-editor-menu-screen').remove();
+    button.killButtonByName(name);
     $(document).unbind('open_' + name + '_menu');
     $(document).unbind('close_' + name + '_menu');
   };

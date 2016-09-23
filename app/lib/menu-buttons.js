@@ -1,7 +1,6 @@
 define([
   "./core",
-  "./helper-functions",
-  "./editor"
+  "./helper-functions"
 ], function( Flixpress, helper ) {
 
   var modalJQSelector = '#colorbox';
@@ -227,6 +226,7 @@ define([
 
   $(document).bind( 'cbox_closed', function () {
     killAllButtons();
+    $(document).unbind('click.offMenu');
   });
   
   return {
