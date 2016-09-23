@@ -229,13 +229,12 @@ define([
     killAllButtons();
   });
   
-  Flixpress.editor.killAllMenuButtons = killAllButtons;
-  Flixpress.editor.killButtonByName = killButtonByName;
-  Flixpress.editor.deactivateButtonByName = deactivateButtonByName;
-  Flixpress.editor.activateButtonByName = activateButtonByName;
-  
   return {
-    registerMenuButton: registerMenuButton
+    registerMenuButton: registerMenuButton,
+    killAllMenuButtons: killAllButtons,
+    killButtonByName: killButtonByName,
+    deactivateButtonByName: deactivateButtonByName,
+    activateButtonByName: activateButtonByName
   }
   
 });
