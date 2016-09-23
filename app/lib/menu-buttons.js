@@ -1,6 +1,7 @@
 define([
   "./core",
-  "./helper-functions"
+  "./helper-functions",
+  "./editor"
 ], function( Flixpress, helper ) {
 
   var modalJQSelector = '#colorbox';
@@ -181,6 +182,18 @@ define([
     });
   }
   
+  function killButtonByName (name) {
+    $.each(registeredButtons, function (i, quadrant){
+      $.each(quadrant, function (i, $button){
+        if ($button.data('name') === name) {
+          $button.deactivateButton();
+          $button.remove();
+          quadrant.splice(i,1);
+        }
+      });
+    });
+  }
+  
   function activateQuadrant (qName) {
     $quadrant = quadrants[qName];
     $quadrant.appendTo($(modalJQSelector));
@@ -217,7 +230,9 @@ define([
   });
   
   Flixpress.editor.killAllMenuButtons = killAllButtons;
+  Flixpress.editor.killButtonByName = killButtonByName;
   Flixpress.editor.deactivateButtonByName = deactivateButtonByName;
+  Flixpress.editor.activateButtonByName = activateButtonByName;
   
   return {
     registerMenuButton: registerMenuButton
