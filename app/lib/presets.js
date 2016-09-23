@@ -375,7 +375,7 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix('template' + getTemplateId() + '.js', folderUrl));
+      menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
     });
   };
 
