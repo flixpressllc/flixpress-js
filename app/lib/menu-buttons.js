@@ -30,7 +30,7 @@ define([
   /*
     options:
       quadrant: string
-        one of 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' (only top right works now...)
+        one of 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'
         (this is dependent on css styles to work properly)
       onActivate: function
         what happens when you click the button
