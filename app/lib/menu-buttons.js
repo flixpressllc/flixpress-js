@@ -102,7 +102,7 @@ define([
         s.isStateless = false;
       }
       
-      s.hasUrl = s.url === false ? false : true;
+      s.hasUrl = s.url === undefined ? false : true;
       
       if (s.onActivate === undefined) {
         s.onActivate = function () {};
