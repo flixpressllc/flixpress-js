@@ -87,7 +87,7 @@ define([
       var s = $.extend({}, defaults, options);
       
       if (s.onActivate === undefined && s.url === undefined) {
-        console.error(`The ${s.name} button cannot be registered without an \`onActivate\` function or a url to display.`);
+        console.error('The ' + s.name + ' button cannot be registered without an `onActivate` function or a url to display.');
         return false;
       }
       
@@ -126,7 +126,7 @@ define([
     
     function openUrl (url) {
       if ($iframe === null) {
-        $iframe = $(`<div class="button-iframe-wrapper"><iframe src="${url}"></iframe></div>`);
+        $iframe = $('<div class="button-iframe-wrapper"><iframe src="' + url + '"></iframe></div>');
       }
       $iframe.appendTo($(modalJQSelector));
       helper.pausePlayerInFrame($('.cboxIframe')[0])

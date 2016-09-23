@@ -53,20 +53,20 @@ function( Flixpress, button ) {
       var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
       // For the logic on this regex pattern, see this address: https://regex101.com/r/rK4jF3/1
       var domainMatchPart = currentMainDomain.split('.').join('\\.');
-      var regexString = `^https?:\\/\\/(?:[^.]*\\.)?${ domainMatchPart }$`;
+      var regexString = '^https?:\\/\\/(?:[^.]*\\.)?' + domainMatchPart + '$';
       var regexObj = new RegExp(regexString, 'm')
       if (origin.match(regexObj) === null) { return; }
       var data = event.data || event.originalEvent.data;
-      var noMatch = data !== `close: ${identifyingSlug}` ? true : false;
+      var noMatch = data !== 'close: ' +identifyingSlug ? true : false;
       if (noMatch) { return; }
       
       buttonToClose.deactivateButton();
     }
-    $(window).on(`message.${identifyingSlug}`, receiveMessage);
+    $(window).on('message.' + identifyingSlug, receiveMessage);
   }
   
   function killCloseListener (identifyingSlug) {
-    $(window).off(`message.${identifyingSlug}`);
+    $(window).off('message.' + identifyingSlug);
   }
 
   Flixpress.editor.addAudioButton = addAudioButton;
