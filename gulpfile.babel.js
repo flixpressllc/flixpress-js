@@ -14,6 +14,7 @@ import fs from 'fs';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 var production = true;
+var distribution = false;
 const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
@@ -210,16 +211,27 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
+gulp.task('uglify-for-dist', () => {
+  return gulp.src('.tmp/flixpress.js')
+    .pipe($.uglify())
+    .pipe($.concat('flixpress.min.js'))
+    .pipe(gulp.dest(productionPath))
+});
+
 gulp.task('kickoff', ['clean'], () => {
   let requireCall = production ? 'requirejs' : 'dev-requirejs';
+  requireCall = distribution ? 'production-requirejs' : requireCall;
   
-  rs([requireCall, 'styles']);
   gulp.watch('app/**/*.js', [requireCall]);
   gulp.watch('app/styles/*.{scss,sass}', ['styles']);
 });
 
 gulp.task('dev-requirejs', () => {
   rs('dev-replace', 'requirejs')
+});
+
+gulp.task('production-requirejs', () => {
+  rs('requirejs', 'uglify-for-dist')
 });
 
 gulp.task('dev-replace', () => {
@@ -238,5 +250,10 @@ gulp.task('production', () => {
 });
 gulp.task('development', () => {
   production = false;
+  rs('kickoff');
+});
+gulp.task('production:dist', () => {
+  production = true;
+  distribution = true;
   rs('kickoff');
 });
