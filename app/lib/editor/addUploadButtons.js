@@ -3,7 +3,7 @@ define([
   "../menu-buttons"
   ],
 function( Flixpress, button ) {
-  var isDevServer = window.location.hostname.indexOf('files') === 0 ? true : false;
+  var isDevServer = window.location.hostname.indexOf('.biz') !== -1 ? true : false;
   var audioUrl, videoUrl;
   
   var l = window.location;
