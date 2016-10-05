@@ -6,7 +6,9 @@ define([
   "./switch-modes",
   "./player",
   "./help-menu",
-  "./presets"
+  "./template-data",
+  "./presets",
+  "./editor/addUploadButtons"
   ],
 function( Flixpress ) {
   Flixpress.loaded.resolve().then( function(){

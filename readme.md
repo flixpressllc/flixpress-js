@@ -6,7 +6,7 @@ Requires jQuery. See [Building Flixpress JS](#building-flixpress-js) below for b
 
 ## API
 
-### `Flixpress`
+### The `Flixpress` object
 
 Once Flixpress JS has run, it will create an object called `Flixpress` in the `window` object. After it has successfully "installed" itself into that object, it will fire off an event called `flixpressJsLoaded` on the `body` element using jQuery's `trigger` method. Listen for that before you run any Flixpress JS methods. For example:
 
@@ -36,25 +36,25 @@ To use the latest production version of the script, run `Flixpress.devModeOff()`
 A namespace for methods dealing with the modals that contain the editor interfaces on the site.
 
 
-#### .helpMenu()
+#### `Flixpress.editor.helpMenu()`
 
 Invokes the help menu for the template editor. This method could be called at any time after the modal is opened, but it seems best to call it in the `CustomizeView`, since it currently only deals with things pertinent in that screen.
 
 There will be a separate document describing how to create the json assets needed for help menu link creation.
 
 
-#### .presets()
+#### `Flixpress.editor.presets()`
 
-Invokes the presets menu for the current template editor. If no presets are available, the menu will not display. In [development mode][dm], it will also log the current XML information to the console.
+Invokes the presets menu for the current template editor. If no presets are available, the menu will not display. In [development mode][dm], it will also invoke the 'Get XML' button. When clicked, it will display the currently applied preset XML.
 
 There will be a separate document describing how to create the json assets needed for preset creation.
 
 [dm]: #-flixpress-devmode-on-off-
 
 
-#### .getPresetXML()
+#### `Flixpress.editor.getPresetXML()`
 
-Best used in [development mode][dm]. This method logs the currently applied preset XML to the console *and also* returns that string in case you need to do something special with it in the console.
+Best used in [development mode][dm]. This method returns the currently applied preset XML.
 
 There will be a separate document describing how to create the json assets needed for preset creation.
 
@@ -63,7 +63,7 @@ There will be a separate document describing how to create the json assets neede
 
 A namespace for methods dealing with the video players on the site.
 
-#### .setup()
+#### `Flixpress.player.setup()`
 
 Creates a video player on the page. Currently acts as a bridge to JW Player.
 

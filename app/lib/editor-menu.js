@@ -1,9 +1,27 @@
 define([
   "./core",
-  "./helper-functions"
-], function( Flixpress, helper ) { 
+  "./helper-functions",
+  "./menu-buttons",
+  "./player"
+], function( Flixpress, helper, button ) { 
 
-  var registerNewMenu = function (name, cssFile, jsonFile) {
+  //////// Settings
+  
+  /*
+   * `modalJQSelector` is a string representing the selector
+   * that jQuery uses to select the colorbox where the menu
+   * is populated. It is unlikely this should be changed.
+   */
+  var modalJQSelector = '#colorbox'; 
+
+  //////// Preferences
+
+  var width = 640; // for video
+  var height = 360; // for video
+
+
+
+  var registerNewMenu = function (name, cssFile, jsonFile, buttonQuadrant) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -36,23 +54,6 @@ define([
      * or the script will fail silently. Use a validator.
      */
 
-    //////// Settings
-    
-    /*
-     * `modalJQSelector` is a string representing the selector
-     * that jQuery uses to select the colorbox where the menu
-     * is populated. It is unlikely this should be changed.
-     */
-    var modalJQSelector = '#colorbox'; 
-
-    //////// Preferences
-
-    var pathToJWSkin = '/Video/features/flixsix.xml'; // no server location. This is separate from Flixpress-js
-    var width = 640; // for video
-    var height = 360; // for video
-    var flashOrHtml = 'flash';
-
-
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -64,13 +65,12 @@ define([
     // Other Local Vars
     var data;
     var $menuScreen = $('<div id="' + name + '-editor-menu-screen" class="editor-menu-screen"><div class="content"></div></div>');
-    var $menuButton = $('<div id="' + name + '-editor-menu-button" class="editor-menu-button">Show ' + helper.toTitleCase(name) + '</div>');
     var $menuTopics = $('<ul class="editor-menu-menu"></ul>');
     var $detailsArea = $('<div class="editor-menu-info"></div>');
-    var jwplayers = {};
-    var ytplayers = {};
-    var jwcount = 0;
-    var ytcount = 0;
+    var fpPlayers = {};
+    var ytPlayers = {};
+    var fpCount = 0;
+    var ytCount = 0;
     var jsonFileDir = jsonFile.replace(/\/+[^\/]*$/, '');
 
     function addNewHeading ( menuObject ) {
@@ -104,7 +104,7 @@ define([
           $newInfoPane.append($newInfoPane.data('' + name + '-content'));
           $newInfoPane.data('' + name + '-content', 'applied');
           
-          var $playersComplete = jwplayerSetup($newInfoPane);
+          var $playersComplete = fpPlayerSetup($newInfoPane);
           $playersComplete.done(function(){
             $firstLoadComplete.resolve();
           });
@@ -122,36 +122,30 @@ define([
     }
 
     
-    function jwplayerSetup($infoPane){
-      var $jwPlayers = $infoPane.find('.jwplayer-video');
+    function fpPlayerSetup($infoPane){
+      var $fpPlayers = $infoPane.find('.fp-player-video');
 
-      if ($jwPlayers.length < 1) {
+      if ($fpPlayers.length < 1) {
         return $.Deferred().resolve();
       }
 
       var allPromises = [];
 
-      $jwPlayers.each(function(){
+      $fpPlayers.each(function(){
         var $thisDone = $.Deferred();
         allPromises.push($thisDone);
         
         var id = $(this).attr('id');
-        var options = jwplayers[id];
+        var options = fpPlayers[id];
+        var file = options.file;
         
-        $jwPromise.done(function(){
+        Flixpress.player.setup( file, id, options );
+        // jwplayer(id).setup(options).onReady(function(){
+        //   // Play on first load only.
+        //   setTimeout(function(){jwplayer(id).play();}, 1);
+        // });        
+        $thisDone.resolve();
         
-          jwplayer(id).setup(options).onTime(function(timing){
-            // Detect near end of video
-            if (timing.position > (timing.duration - 0.3) ){
-                jwplayer(id).seek(0).pause(true);
-            }
-          }).onReady(function(){
-            $thisDone.resolve();
-            // Play on first load only.
-            setTimeout(function(){jwplayer(id).play();}, 1);
-          });        
-        
-        });
       });
       
       var $allDone = $.Deferred();
@@ -160,19 +154,18 @@ define([
       return $allDone;
     }
 
-    function jwplayerPrepare(divId, videoUrl, options) {
+    function fpPlayerPrepare(divId, videoUrl, options) {
       var defaults = {
         autoplay: false,
         width: width, // via 'settings' at top
         height: height, // 'settings'
-        skin: pathToJWSkin, // 'settings'
         file: videoUrl,
-        primary: flashOrHtml // 'settings'
+        replaceDiv: true
       };
       options = $.extend(defaults, options);
-      jwplayers[divId] = options;
+      fpPlayers[divId] = options;
 
-      return '<div class="jwplayer-video" id="'+divId+'"></div>';
+      return '<div class="fp-player-video" id="'+divId+'"></div>';
     }
 
     /*
@@ -199,16 +192,30 @@ define([
 
       var addedTopic = addNewTopic(menuObject, $(embedHtml) );
       addedTopic.firstLoad.done(function(){
-        ytplayers[ytDiv] = new YT.Player(ytDiv);
+        ytPlayers[ytDiv] = new YT.Player(ytDiv);
       });
     }
 
-    function newJwDiv () {
-      return name + '-jwnum'+(++jwcount);
+    function newFpDiv () {
+      return name + '-fpnum'+(++fpCount);
     }
 
     function newYtDiv () {
-      return name + '-ytnum'+(++ytcount);
+      return name + '-ytnum'+(++ytCount);
+    }
+    
+    // You may pass a string to this function. Anything else creates an empty div.
+    // Returns jQuery
+    function createFpDiv (url) {
+      if (typeof url !== 'string' || url.length === 0) {
+        return $('');
+      }
+      
+      var $videoDiv = $('<div class="video-wrapper"></div>');
+      var fpDiv = newFpDiv();
+      var fpHtml = fpPlayerPrepare( fpDiv, Flixpress.smartUrlPrefix(url, jsonFileDir) );
+      
+      return $videoDiv.append(fpHtml);
     }
 
     /*
@@ -223,9 +230,6 @@ define([
     function createPresetDetails (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwDiv = newJwDiv();
-      var jwHtml = jwplayerPrepare( jwDiv, Flixpress.smartUrlPrefix(menuObject.data.video, jsonFileDir) );
       var $presetButton = $('<a href="#" class="preset-button">Load Preset</a>');
       // if the xml file starts with a slash, add the server location to the beginning.
       var xmlUrl = Flixpress.smartUrlPrefix(menuObject.data.xml, jsonFileDir);
@@ -240,12 +244,11 @@ define([
           // user interaction (per the 'click' above), so it should work just fine.
           Flixpress.editor.getPresetFile(xmlUrl);
           
-          $(this).trigger('close_' + name + '_menu');          
+          $(document).trigger('close_' + name + '_menu');          
         }
       });
       
-      $videoDiv.append(jwHtml);
-      $embedHtml.append(title, $videoDiv, description, $presetButton);
+      $embedHtml.append(title, createFpDiv(menuObject.data.video), description, $presetButton);
 
       var addedTopic = addNewTopic(menuObject, $embedHtml );
 
@@ -270,12 +273,7 @@ define([
     function createVideoLink (menuObject) {
       var $embedHtml = $('<div></div>');
       var title = '<h1>' + menuObject.name + '</h1>';
-      var $videoDiv = $('<div class="video-wrapper"></div>');
-      var jwHtml = jwplayerPrepare(newJwDiv(), menuObject.data);
-
-      $videoDiv.append(jwHtml);
-      $embedHtml.append(title, $videoDiv);
-
+      $embedHtml.append(title, createFpDiv(menuObject.data));
       addNewTopic(menuObject, $embedHtml );
     }
 
@@ -294,7 +292,7 @@ define([
         $page.find('a[href$=mp4]').replaceWith(function(){
           var title = $(this).html();
           var link = $(this).attr('href');
-          return jwplayerPrepare( newJwDiv(), link, {title: title} );
+          return fpPlayerPrepare( newFpDiv(), link, {title: title} );
         });
         addNewTopic(menuObject, $page);
       }); 
@@ -308,12 +306,13 @@ define([
       $('head').append($('<link class="editor-menus" rel="stylesheet" type="text/css" href="' + cssFile + '">'));
     }
 
-    var $jwPromise;
-    if (window.jwplayer === undefined) {
-      $.ajaxSetup({cache: true});
-      $jwPromise = $.getScript('http://jwpsrv.com/library/T7G6AEcEEeOhIhIxOQfUww.js');        
-    } else {
-      $jwPromise = $.Deferred().resolve();
+    //handle errors (usually in json file formatting)
+    if (Flixpress.mode === 'development'){
+      $( document ).ajaxError(function( event, request, settings, thrownError ) {
+        if (settings.url === jsonFile) {
+          console.warn('Couldn\'t read a JSON file: ' + jsonFile + '. If you expected the '+ name +' menu to load, be sure a JSON file is present at that location and that it is perfectly formatted JSON.');
+        }
+      });
     }
 
     $.get(jsonFile, function(fetchedData){
@@ -346,74 +345,34 @@ define([
         }
       });
 
-      $menuButton.bind('click', function(){
-        if ($(this).hasClass('active')){
-          $(this).trigger('close_' + name + '_menu');
-        } else {
-          $(this).trigger('open_' + name + '_menu');
-        }
-      });
-
       $(document).bind('cbox_closed', function(){
         $menuScreen.remove();
-        $menuButton.remove();
         $(document).unbind('open_' + name + '_menu');
         $(document).unbind('close_' + name + '_menu');
-        $(document).unbind('click.offMenu');
-      });
-
-      $(document).bind('click.offMenu', function(event){
-        var $clicked = $(event.target)
-        if (
-          // Click was outside the modal box
-          !$clicked.closest(modalJQSelector).length ||
-          // Click was on a different menu-button 
-          ( $clicked.hasClass('editor-menu-button') && $clicked.attr('id') !== name + '-editor-menu-button')
-        ) {
-          // Close this menu
-          $(this).trigger('close_' + name + '_menu');
-        }
       });
 
       $(document).bind('open_' + name + '_menu', function(event){
-        // function to pause the template preview video
-        var pauseCount = 0;
-        function pauseUnderlyingPlayer() {
-          var context = $('#cboxWrapper iframe')[0].contentWindow;
-          if ( context.jwplayer === undefined ){
-            // jwplayer is still setting up from initial page load
-            // try a few times to give it some time to setup.
-            if (++pauseCount < 8){
-              setTimeout(pauseUnderlyingPlayer(), 500);
-            }
-          } else {
-            context.jwplayer().pause(true);
-          }
-        }
-        
-        $menuButton.addClass('active').html('Hide ' + helper.toTitleCase(name) );
         $menuScreen.addClass('active');
 
-        pauseUnderlyingPlayer();
+        helper.pausePlayerInFrame($('.cboxIframe')[0]);
       });
       
       $(document).bind('close_' + name + '_menu', function(){
-        $menuButton.removeClass('active').html('Show ' + helper.toTitleCase(name) );
         $menuScreen.removeClass('active');
         pauseAllPlayers();
       });
 
       function pauseAllPlayers () {
-        // Pause other jwplayers
-        for (var prop in jwplayers) {
-          if (jwplayer(prop).pause !== undefined){
-            jwplayer(prop).pause(true);
+        // Pause other fpPlayers
+        for (var prop in fpPlayers) {
+          if ($('#' + prop).pause !== undefined){
+            $('#' + prop).pause();
           }
         }
         // Pause Youtube videos
-        for (var player in ytplayers) {
-          if (ytplayers[player].pauseVideo !== undefined){
-            ytplayers[player].pauseVideo();
+        for (var player in ytPlayers) {
+          if (ytPlayers[player].pauseVideo !== undefined){
+            ytPlayers[player].pauseVideo();
           }
         }
       };
@@ -424,8 +383,17 @@ define([
 
       $menuScreen.find('.content').append($menuTopics,$detailsArea);
       $(modalJQSelector).find('#'+name+'-editor-menu-button, #'+name+'-editor-menu-screen').remove();
-      $(modalJQSelector).append($menuButton, $menuScreen);
+      $(modalJQSelector).append($menuScreen);
 
+      button.registerMenuButton({
+        quadrant: buttonQuadrant || 'topRight',
+        name: name,
+        inactiveText: 'Show ' + helper.toTitleCase(name),
+        activeText: 'Hide ' + helper.toTitleCase(name),
+        onActivate: function(){ $(document).trigger('open_' + name + '_menu'); },
+        onDeactivate: function(){ $(document).trigger('close_' + name + '_menu'); }
+      });
+      
       // Hack to get around colorbox setting overflow to hidden on all resizes
       $(window).bind('resize', function(){
         setTimeout(function(){
@@ -433,12 +401,21 @@ define([
         }, 3);
       });
 
-    }).always(function(){
-      // things to always do...
-    }).fail(function(){
-      // catch failures
-      // really, just do nothing when a menu doesn't exist
     });
   };
-  return {registerNewMenu: registerNewMenu};
+  
+  var deregisterMenu = function (name) {
+    if (typeof name !== 'string') {
+      return;
+    }
+    $(modalJQSelector).find('#'+name+'-editor-menu-screen').remove();
+    button.killButtonByName(name);
+    $(document).unbind('open_' + name + '_menu');
+    $(document).unbind('close_' + name + '_menu');
+  };
+
+  return {
+    registerNewMenu: registerNewMenu,
+    deregisterMenu: deregisterMenu
+  };
 });

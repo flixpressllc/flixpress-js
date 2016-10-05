@@ -13,8 +13,15 @@ define([
 function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   jxon.config({
-    lowerCaseTags: false
+    // no changes necessary in 2.0 branch
   });
+  
+  // Monkey patch to fix for a change in JXON at 2.0.0
+  // (the v2.0.0 branch adds an errant 'xmlns' property as 'undefined')
+  jxon.jsToString2 = jxon.jsToString;
+  jxon.jsToString = function (jsObj) {
+    return jxon.jsToString2(jsObj).replace('xmlns="undefined" ','');
+  }
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
@@ -176,13 +183,19 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
     return preset;
   }
 
+  // Accepts either an XML string or a js object representing the xml
   var loadPreset = function (xmlObject) {
     var el = xmlContainerDiv();
     var flashvars = getSanitizedVars();
     if (!el) {return false;}
-    el.value = jxon.jsToString(xmlObject);
+    
+    if (typeof xmlObject === 'string') {
+      el.value = xmlObject;
+    } else {
+      el.value = jxon.jsToString(xmlObject);
+    }
+    
     prepareDOM();
-
     context().SetupRndTemplateFlash.apply(context(), flashvars);
   };
 
@@ -198,6 +211,126 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
       return true;      
     }
   };
+  
+  var prettyDisplayXML = function () {
+    var $div = $('#FlixpressJs-XML-PresetInformation');
+    $div.remove();
+    $div = $('<div id="FlixpressJs-XML-PresetInformation">\
+      <a class="exit">Close (or hit <code>esc</code> key)</a>\
+      <a class="load">Load text below as preset</a>\
+      <div><textarea></textarea></div>\
+      </div>');
+    
+    $('body').css('overflow', 'hidden');
+    var closeDiv = function(){
+      $div.hide();
+      $('body').css('overflow', 'auto');
+      $(document).off('.presets');
+    };
+    
+    $div
+      .css({
+        position: 'absolute',
+        background: '#eee',
+        color: '#222',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 100000
+        })
+      .prependTo($('#colorbox'))
+      .show();
+
+    $div.find('textarea')
+      .css({
+        width: '100%',
+        height: '100%',
+        fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
+        })
+      .text(getCurrentConditions('xml'))
+      .select();
+
+    $div.find('.exit')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
+      .on('click', closeDiv);
+
+    $div.find('.load')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        left: 200,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
+      .on('click', function(){
+        loadPreset($div.find('textarea')[0].value);
+        closeDiv();
+      });
+
+    $(document).on('cbox_closed.presets', function(){$div.hide()});
+    $(document).on('keydown.presets', function(e){
+      if (e.keyCode === 27){
+        closeDiv();
+      }
+    });
+  };
+  
+  var displayXMLButton = function () {
+    var $div = $('#FlixpressJS-DisplayXMLButton');
+    $div.remove();
+    $div = $('<div id="FlixpressJS-DisplayXMLButton">Get Loaded XML</div>');
+    
+    $div
+      .css({
+        position: 'fixed',
+        left: 24,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', prettyDisplayXML)
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
+
+  var displayPresetResetButton = function () {
+    var $div = $('#FlixpressJS-PresetResetButton');
+    $div.remove();
+    $div = $('<div id="FlixpressJS-PresetResetButton">Refresh Presets</div>');
+
+    $div
+      .css({
+        position: 'fixed',
+        left: 170,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', function(){Flixpress.editor.presets();})
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
 
   // Used by Flixpress.editor-menu
   Flixpress.editor.getPresetFile = function(url){
@@ -212,8 +345,23 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
   };
 
 
+  var folderUrl = '/templates/presets/';
   Flixpress.editor.presets = function (folderUrlOverride) {
-    var folderUrl = folderUrlOverride ? folderUrlOverride : '/templates/presets/';
+    menu.deregisterMenu('presets');
+    folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
+    
+    try {
+      context();
+    } catch (e) {
+      // There must not be an iframe open yet.
+      // We've already updated the folderUrl, so just return.
+      return;
+    }
+
+    if (Flixpress.mode === 'development') {
+      displayXMLButton();
+      displayPresetResetButton();
+    }
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
@@ -228,15 +376,11 @@ function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
     $promise.done(function(){
       menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
-      if (Flixpress.mode === 'development') {
-        Flixpress.editor.getPresetXML();
-      }
     });
   };
 
   Flixpress.editor.getPresetXML = function () { 
-    console.log(getCurrentConditions('xml'));
-    return getCurrentConditions('xml'); 
+    return getCurrentConditions('xml');
   }
   
   switchModes.registerBeforeBothTask( function(){

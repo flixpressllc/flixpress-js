@@ -14,7 +14,8 @@ import fs from 'fs';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 var production = true;
-const productionPath = '/Volumes/MediaRobot/Scripts/flixpress-js';
+var distribution = false;
+const productionPath = '/Volumes/Don/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
    With my version, only the Key and Secret are in the JSON file. I can define the
@@ -45,7 +46,7 @@ gulp.task('styles', () => {
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/styles'))
     .pipe( $.if( production, 
-      gulp.dest(productionPath + 'styles/'), 
+      gulp.dest(productionPath + '/styles'), 
       $.s3(awsCredentials,{uploadPath: awsOptions.uploadPath + "/styles"}) ) )
     .pipe(reload({stream: true}));
 });
@@ -194,6 +195,7 @@ gulp.task('requirejs', () => {
   let dir = production ? 'app' : '.tmp';
   
   return gulp.src(dir + '/lib/flixpress.js')
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.requirejsOptimize({
       optimize: 'none',
       mainConfigFile: dir + '/lib/config.js',
@@ -209,16 +211,27 @@ gulp.task('requirejs', () => {
       $.s3(awsCredentials, awsOptions) ) )
 });
 
+gulp.task('uglify-for-dist', () => {
+  return gulp.src('.tmp/flixpress.js')
+    .pipe($.uglify())
+    .pipe($.concat('flixpress.min.js'))
+    .pipe(gulp.dest(productionPath))
+});
+
 gulp.task('kickoff', ['clean'], () => {
   let requireCall = production ? 'requirejs' : 'dev-requirejs';
+  requireCall = distribution ? 'production-requirejs' : requireCall;
   
-  rs([requireCall, 'styles']);
   gulp.watch('app/**/*.js', [requireCall]);
   gulp.watch('app/styles/*.{scss,sass}', ['styles']);
 });
 
 gulp.task('dev-requirejs', () => {
   rs('dev-replace', 'requirejs')
+});
+
+gulp.task('production-requirejs', () => {
+  rs('requirejs', 'uglify-for-dist')
 });
 
 gulp.task('dev-replace', () => {
@@ -237,5 +250,10 @@ gulp.task('production', () => {
 });
 gulp.task('development', () => {
   production = false;
+  rs('kickoff');
+});
+gulp.task('production:dist', () => {
+  production = true;
+  distribution = true;
   rs('kickoff');
 });
