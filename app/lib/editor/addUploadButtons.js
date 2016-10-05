@@ -26,8 +26,8 @@ function( Flixpress, button ) {
       name: 'add-audio',
       inactiveText: 'Add Audio',
       activeText: 'Close Audio',
-      onActivate: function(){ createCloseListener(theButton, 'add-audio'); },
-      onDeactivate: function(){ killCloseListener('add-audio'); }
+      onActivate: function(){ createMessageListener(theButton, 'add-audio'); },
+      onDeactivate: function(){ killMessageListener('add-audio'); }
     });
     
   }
@@ -40,14 +40,25 @@ function( Flixpress, button ) {
       name: 'add-video',
       inactiveText: 'Add Video',
       activeText: 'Close Video',
-      onActivate: function(){ createCloseListener(theButton, 'add-video'); },
-      onDeactivate: function(){ killCloseListener('add-video'); }
+      onActivate: function(){ createMessageListener(theButton, 'add-video'); },
+      onDeactivate: function(){ killMessageListener('add-video'); }
     });
   }
   
-  function createCloseListener (buttonToClose, identifyingSlug) {
+  
+  function createMessageListener (buttonHandle, identifyingSlug) {
     var callingSource, callingOrigin;
     
+    function callCorrespondingFunction (postedMessage) {
+      switch (postedMessage) {
+        case 'close: ' + identifyingSlug :
+          buttonHandle.deactivateButton();
+          break;
+        case 'redirect: upgrade':
+          window.location.pathname = '/upgrade';
+          break;
+      }
+    }
     // messages received must be strings that look like "close: name-of-button". That's it.
     function receiveMessage (event) {
       var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
@@ -56,16 +67,14 @@ function( Flixpress, button ) {
       var regexString = '^https?:\\/\\/(?:[^.]*\\.)?' + domainMatchPart + '$';
       var regexObj = new RegExp(regexString, 'm')
       if (origin.match(regexObj) === null) { return; }
-      var data = event.data || event.originalEvent.data;
-      var noMatch = data !== 'close: ' +identifyingSlug ? true : false;
-      if (noMatch) { return; }
       
-      buttonToClose.deactivateButton();
+      var data = event.data || event.originalEvent.data;
+      callCorrespondingFunction(data);
     }
     $(window).on('message.' + identifyingSlug, receiveMessage);
   }
   
-  function killCloseListener (identifyingSlug) {
+  function killMessageListener (identifyingSlug) {
     $(window).off('message.' + identifyingSlug);
   }
 
