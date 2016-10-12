@@ -11,11 +11,11 @@ function( Flixpress, button ) {
   var currentMainDomain = l.host.split('.').splice(-2).join('.');
   
   if (isDevServer) {
-    audioUrl = '//search.' + currentMainDomain + '/Audio?d=' + currentOrigin;
-    videoUrl = '//search.' + currentMainDomain + '/Video?d=' + currentOrigin;
+    audioUrl = '//search.' + currentMainDomain + '/Audio.aspx?d=' + currentOrigin;
+    videoUrl = '//search.' + currentMainDomain + '/Video.aspx?d=' + currentOrigin;
   } else {
-    audioUrl = '//upload.' + currentMainDomain + '/Audio?d=' + currentOrigin;
-    videoUrl = '//upload.' + currentMainDomain + '/Video?d=' + currentOrigin;
+    audioUrl = '//uploads.' + currentMainDomain + '/Audio.aspx?d=' + currentOrigin;
+    videoUrl = '//uploads.' + currentMainDomain + '/Video.aspx?d=' + currentOrigin;
   }
   
   function addAudioButton (userToken) {
