@@ -15,7 +15,7 @@ const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 var production = true;
 var distribution = false;
-const productionPath = '/Volumes/Don/Scripts/flixpress-js';
+const productionPath = '/Volumes/Don2/Scripts/flixpress-js';
 
 /* I am doing this slightly different than suggested at https://github.com/nkostelnik/gulp-s3
    With my version, only the Key and Secret are in the JSON file. I can define the
