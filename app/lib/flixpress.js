@@ -3,12 +3,17 @@
 
 define([
   "./core",
+  "./switch-modes",
   "./player",
   "./help-menu",
-  "./presets"
+  "./template-data",
+  "./presets",
+  "./editor/addUploadButtons"
   ],
 function( Flixpress ) {
-  window.Flixpress = Flixpress;
-  $('body').trigger({type:'flixpressJsLoaded'});
+  Flixpress.loaded.resolve().then( function(){
+    window.Flixpress = Flixpress;
+    $('body').trigger({type:'flixpressJsLoaded'});
+  });
   return;
 });

@@ -7,7 +7,7 @@ define([
   var cssFile = '/help/help-menu.css';
   var jsonFile = '/help/help-json.js';
 
-  menu.registerNewMenu('help', false, jsonFile);
+  menu.registerNewMenu('help', false, jsonFile, 'topLeft');
 
   return;
 

@@ -6,13 +6,22 @@ define([
   "./contexts/editor-window",
   "./editor-menu",
   "components/jxon/index",
+  "./switch-modes",
+  /*d-> "components/js-beautify/js/index", <-d*/
   "./editor"
   ],
-function( Flixpress, context, menu, jxon ) {
+function( Flixpress, context, menu, jxon, switchModes/*d-> , jsb <-d*/ ) {
 
   jxon.config({
-    lowerCaseTags: false
+    // no changes necessary in 2.0 branch
   });
+  
+  // Monkey patch to fix for a change in JXON at 2.0.0
+  // (the v2.0.0 branch adds an errant 'xmlns' property as 'undefined')
+  jxon.jsToString2 = jxon.jsToString;
+  jxon.jsToString = function (jsObj) {
+    return jxon.jsToString2(jsObj).replace('xmlns="undefined" ','');
+  }
 
   var replaceDivId = 'Template_FlashContent_Div';
   var xmlContainerDiv = function () {return context().$('#RndTemplate_HF')[0];};
@@ -64,25 +73,87 @@ function( Flixpress, context, menu, jxon ) {
 
     }
 
-
     if (returnType === 'xml') {
-      return jxon.jsToString( currentConditions );
+      var curXML = jxon.jsToString( currentConditions );
+      if (Flixpress.mode === 'development') {
+        curXML = jsb.html(curXML);
+      }
+      return curXML;
     } else {
       return currentConditions;
     }
   };
 
-  // gets many of the vars we will be using in SetupRndTemplateFlash
-  var getVars = function () {
-    var varString = context().$('object param[name="flashvars"]')[0].value;
-    var varObject = safeQueryStringToJSON( varString );
+  // Returns an array of values (of any individual type)
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarValues = function () {
+    if (Flixpress.editor.flashvars !== undefined) {
+      return Flixpress.editor.flashvars;
+    } else if (context().editorFlashvars !== undefined) {
+      return context().editorFlashvars;
+    } else {
+      return false;
+    }
+  }
+  
+  // Returns an array of strings representing the variable names
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarNames = function () {
+    var funcString = context().SetupRndTemplateFlash.toString();
+    var argNames = funcString.match(/SetupRndTemplateFlash *\((.*?)\)/)[1];
+    argNames = argNames.split(',').map( function(str){ return str.trim(); } );
+    return argNames;
+  }
+  
+  // Returns an array of values (of any individual type)
+  // for the arguments used in SetupRndTemplateFlash
+  var getVarsObject = function () {
+    var result = {};
+    var names = getVarNames();
+    var values = getVarValues();
+    // build the object
+    for (var i = names.length - 1; i >= 0; i--) {
+      result[names[i]] = values[i];
+    }
+  }
+  
+  var getSanitizedVars = function () {
+    var arr = getVarValues();
+    var hasEdit = false;
+    
+    arr = arr.map( function(thing) {
+      if (thing === "Add" || thing === "Edit") {
+        hasEdit = true;
+        return "Edit";
+      }
+      return thing;
+    });
+    
+    if (hasEdit) {
+      return arr;
+    }
+    
+    return false;
+  }
+  
+  var getMode = function () {
+    var values = getVarValues();
+    for (var i = values.length - 1; i >= 0; i--) {
+      if (values[i] === "Add" || values[i] === "Edit") {
+        return values[i];
+      }
+    }
+    return false;
+  }
 
-    // Still need the .swf file. It is in <object data="file.swf?v2">
-    // We need it without the v2 stuff
-    var swfFile = context().$('object')[0].data.split('?')[0];
-
-    varObject.swf = swfFile;
-    return varObject;
+  var getTemplateId = function () {
+    var names = getVarNames();
+    for (var i = names.length - 1; i >= 0; i--) {
+      if ( names[i].match(/template(_|-)*id/i) !== null ) {
+        return getVarValues()[i];
+      }
+    }
+    return false;
   }
 
   /*
@@ -112,29 +183,26 @@ function( Flixpress, context, menu, jxon ) {
     return preset;
   }
 
+  // Accepts either an XML string or a js object representing the xml
   var loadPreset = function (xmlObject) {
     var el = xmlContainerDiv();
-    var flashvars = getVars();
+    var flashvars = getSanitizedVars();
     if (!el) {return false;}
-    el.value = jxon.jsToString(xmlObject);
+    
+    if (typeof xmlObject === 'string') {
+      el.value = xmlObject;
+    } else {
+      el.value = jxon.jsToString(xmlObject);
+    }
+    
     prepareDOM();
-    // This function is defined in /Templates/Scripts/SetupRndTemplateFlash.js
-    context().SetupRndTemplateFlash(
-      flashvars.swf,
-      replaceDivId,
-      flashvars.Username,
-      flashvars.TemplateId,
-      flashvars.MinutesRemainingInContract,
-      flashvars.MinimumTemplateDuration,
-      "Edit", // Must always be in Edit mode for presets
-      flashvars.isU
-    );
+    context().SetupRndTemplateFlash.apply(context(), flashvars);
   };
 
   // Reloads the presets that were on the page when it
   // first loaded
   var reloadCurrent = function () {
-    if (getVars().Mode === "Add") {
+    if (getMode() === "Add") {
       // We cannot reload the previous state if it was in Add mode to begin.
       // Well, we can... but it's pointless.
       return false;
@@ -143,6 +211,126 @@ function( Flixpress, context, menu, jxon ) {
       return true;      
     }
   };
+  
+  var prettyDisplayXML = function () {
+    var $div = $('#FlixpressJs-XML-PresetInformation');
+    $div.remove();
+    $div = $('<div id="FlixpressJs-XML-PresetInformation">\
+      <a class="exit">Close (or hit <code>esc</code> key)</a>\
+      <a class="load">Load text below as preset</a>\
+      <div><textarea></textarea></div>\
+      </div>');
+    
+    $('body').css('overflow', 'hidden');
+    var closeDiv = function(){
+      $div.hide();
+      $('body').css('overflow', 'auto');
+      $(document).off('.presets');
+    };
+    
+    $div
+      .css({
+        position: 'absolute',
+        background: '#eee',
+        color: '#222',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 100000
+        })
+      .prependTo($('#colorbox'))
+      .show();
+
+    $div.find('textarea')
+      .css({
+        width: '100%',
+        height: '100%',
+        fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
+        })
+      .text(getCurrentConditions('xml'))
+      .select();
+
+    $div.find('.exit')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
+      .on('click', closeDiv);
+
+    $div.find('.load')
+      .css({
+        cursor: 'pointer',
+        padding: '10px',
+        margin: '8px',
+        border: '1px solid gray',
+        display: 'block',
+        position: 'absolute',
+        top: -61,
+        left: 200,
+        background: 'lightgrey',
+        fontSize: '1.2em'
+        })
+      .on('click', function(){
+        loadPreset($div.find('textarea')[0].value);
+        closeDiv();
+      });
+
+    $(document).on('cbox_closed.presets', function(){$div.hide()});
+    $(document).on('keydown.presets', function(e){
+      if (e.keyCode === 27){
+        closeDiv();
+      }
+    });
+  };
+  
+  var displayXMLButton = function () {
+    var $div = $('#FlixpressJS-DisplayXMLButton');
+    $div.remove();
+    $div = $('<div id="FlixpressJS-DisplayXMLButton">Get Loaded XML</div>');
+    
+    $div
+      .css({
+        position: 'fixed',
+        left: 24,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', prettyDisplayXML)
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
+
+  var displayPresetResetButton = function () {
+    var $div = $('#FlixpressJS-PresetResetButton');
+    $div.remove();
+    $div = $('<div id="FlixpressJS-PresetResetButton">Refresh Presets</div>');
+
+    $div
+      .css({
+        position: 'fixed',
+        left: 170,
+        bottom: 24,
+        background: '#fff',
+        padding: '12px',
+        zIndex: '100000',
+        cursor: 'pointer'
+        })
+      .on('click', function(){Flixpress.editor.presets();})
+      .appendTo('body');
+    
+    $(document).bind('cbox_closed', function(){$div.remove()});
+
+  }
 
   // Used by Flixpress.editor-menu
   Flixpress.editor.getPresetFile = function(url){
@@ -157,8 +345,23 @@ function( Flixpress, context, menu, jxon ) {
   };
 
 
-  Flixpress.editor.presets = function () {
+  var folderUrl = '/templates/presets/';
+  Flixpress.editor.presets = function (folderUrlOverride) {
+    menu.deregisterMenu('presets');
+    folderUrl = folderUrlOverride ? folderUrlOverride : folderUrl;
+    
+    try {
+      context();
+    } catch (e) {
+      // There must not be an iframe open yet.
+      // We've already updated the folderUrl, so just return.
+      return;
+    }
 
+    if (Flixpress.mode === 'development') {
+      displayXMLButton();
+      displayPresetResetButton();
+    }
     //wait for object:
     var $promise = new $.Deferred();
     var count = 0;
@@ -172,13 +375,21 @@ function( Flixpress, context, menu, jxon ) {
     tryObject();
 
     $promise.done(function(){
-      menu.registerNewMenu('presets', true, Flixpress.serverLocation() + '/templates/presets/template' + getVars().TemplateId + '.js');
-      if (Flixpress.mode === 'development') {
-        console.log(getCurrentConditions('xml'));
-      }
+      menu.registerNewMenu('presets', true, Flixpress.smartUrlPrefix(folderUrl) + 'template' + getTemplateId() + '.js');
     });
   };
 
-  Flixpress.editor.getPresetXML = function () { console.log(getCurrentConditions('xml')); return getCurrentConditions('xml'); }
+  Flixpress.editor.getPresetXML = function () { 
+    return getCurrentConditions('xml');
+  }
+  
+  switchModes.registerBeforeBothTask( function(){
+    window.flixpressEditorPresetNeeds = getVarValues();
+  });
+  switchModes.registerAfterBothTask( function(){
+    if (window.flixpressEditorPresetNeeds !== undefined) {
+      Flixpress.editor.flashvars = window.flixpressEditorPresetNeeds;
+    }
+  });
 
 });
