@@ -19,7 +19,10 @@ function( Flixpress, button ) {
   }
   
   function addAudioButton (userToken) {
-    var url = audioUrl + '&uid=' + userToken;
+    var url = audioUrl;
+    if (userToken !== undefined){
+      url += '&uid=' + userToken;
+    }
     var theButton = button.registerMenuButton({
       quadrant: 'topRight',
       url: url,
@@ -33,7 +36,10 @@ function( Flixpress, button ) {
   }
   
   function addVideoButton (userToken) {
-    var url = videoUrl + '&uid=' + userToken;
+    var url = videoUrl;
+    if (userToken !== undefined){
+      url += '&uid=' + userToken;
+    }
     var theButton = button.registerMenuButton({
       quadrant: 'topRight',
       url: url,
